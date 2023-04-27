@@ -2,11 +2,20 @@ package gr.athenarc.messaging.domain;
 
 public class StoredMessage {
 
+    private String id;
     private Message message;
     private Metadata metadata;
 
     public StoredMessage() {
         // no-arg constructor
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public Message getMessage() {

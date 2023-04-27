@@ -4,21 +4,22 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
+import java.util.List;
 
 @Document
-public class Thread {
+public class TopicThread {
 
     @Id
     private String id;
     private String subject;
-    private String[] tags;
+    private List<String> tags;
     private Correspondent from;
     private Correspondent to;
-    private StoredMessage[] messages;
+    private List<StoredMessage> messages;
     private Date created;
     private Date updated;
 
-    public Thread() {
+    public TopicThread() {
         // no-arg constructor
     }
 
@@ -38,11 +39,11 @@ public class Thread {
         this.subject = subject;
     }
 
-    public String[] getTags() {
+    public List<String> getTags() {
         return tags;
     }
 
-    public void setTags(String[] tags) {
+    public void setTags(List<String> tags) {
         this.tags = tags;
     }
 
@@ -62,11 +63,11 @@ public class Thread {
         this.to = to;
     }
 
-    public StoredMessage[] getMessages() {
+    public List<StoredMessage> getMessages() {
         return messages;
     }
 
-    public void setMessages(StoredMessage[] messages) {
+    public void setMessages(List<StoredMessage> messages) {
         this.messages = messages;
     }
 
