@@ -1,9 +1,15 @@
 package gr.athenarc.messaging.controller;
 
 import gr.athenarc.messaging.domain.*;
+import gr.athenarc.messaging.dto.ThreadDTO;
 import gr.athenarc.messaging.repository.TopicThreadRepository;
+import gr.athenarc.messaging.service.TopicThreadService;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -17,67 +23,96 @@ public class MessagingController {
     private static final Logger logger = LoggerFactory.getLogger(MessagingController.class);
 
     private final TopicThreadRepository topicThreadRepository;
+    private final TopicThreadService topicThreadService;
 
-    public MessagingController(TopicThreadRepository topicThreadRepository) {
+    public MessagingController(TopicThreadRepository topicThreadRepository,
+                               TopicThreadService topicThreadService) {
         this.topicThreadRepository = topicThreadRepository;
+        this.topicThreadService = topicThreadService;
     }
 
     @GetMapping("threads/{id}")
-    public Mono<TopicThread> get(@PathVariable String id) {
-        return topicThreadRepository.findById(id);
+    public Mono<ThreadDTO> get(@PathVariable String id) {
+        return topicThreadService.get(id).map(ThreadDTO::new);
+    }
+
+    @GetMapping("threads/from")
+    public Flux<ThreadDTO> getThreadsFrom(@RequestParam String email) {
+        return getByEmail(email).map(ThreadDTO::new);
+    }
+
+    @GetMapping("threads/to")
+    public Flux<ThreadDTO> getThreadsTo(@RequestParam String group) {
+        return getByGroup(group).map(ThreadDTO::new);
+    }
+
+    public Flux<TopicThread> getByEmail(String email) {
+        TopicThread topicThread = new TopicThread();
+        Correspondent user = new Correspondent();
+        user.setEmail(email);
+        topicThread.setFrom(user);
+        return topicThreadRepository.findAll(Example.of(topicThread), Sort.by(Sort.Order.desc("updated")));
+    }
+
+    public Flux<TopicThread> getByGroup(String group) {
+        TopicThread topicThread = new TopicThread();
+        Correspondent userGroup = new Correspondent();
+        userGroup.setGroupId(group);
+        topicThread.setTo(List.of(userGroup));
+        return topicThreadRepository.findAll(Example.of(topicThread), Sort.by(Sort.Order.desc("updated")));
     }
 
     @GetMapping("threads")
-    public Flux<TopicThread> getTopics() {
-        return topicThreadRepository.findAll();
+    public Flux<ThreadDTO> getTopics(
+            @RequestParam(defaultValue = "created") String sortBy,
+            @RequestParam(defaultValue = "DESC") Sort.Direction direction) {
+        return topicThreadService.browse(Sort.by(direction, sortBy)).map(ThreadDTO::new);
+    }
+
+    @PostMapping("threads/search")
+    public Flux<ThreadDTO> getTopicsByExample(
+            @RequestBody(required = false) ThreadDTO threadDTO,
+            @RequestParam(defaultValue = "created") String sortBy,
+            @RequestParam(defaultValue = "DESC") Sort.Direction direction) {
+        return topicThreadService.browse(
+                    Example.of(ThreadDTO.toTopicThread(threadDTO)),
+                    Sort.by(direction, sortBy)
+                ).map(ThreadDTO::new);
     }
 
     @PostMapping("threads")
-    public Mono<TopicThread> add(@RequestBody TopicThread topicThread) {
-        return topicThreadRepository.save(topicThread);
+    public Mono<ThreadDTO> add(@RequestBody ThreadDTO thread) {
+        return topicThreadService.add(ThreadDTO.toTopicThread(thread)).map(ThreadDTO::new);
     }
 
     @PostMapping("threads/dummy")
-    public Mono<TopicThread> addDummy() {
-        return topicThreadRepository.save(createThread());
+    public Mono<ThreadDTO> addDummy() {
+        return topicThreadRepository.save(createThread()).map(ThreadDTO::new);
     }
 
     @PutMapping("threads/{id}")
-    public Mono<TopicThread> add(@PathVariable String id, @RequestBody TopicThread topicThread) {
-        return topicThreadRepository.save(topicThread);
+    public Mono<ThreadDTO> update(@PathVariable String id, @RequestBody TopicThread topicThread) {
+        return topicThreadService.update(id, topicThread).map(ThreadDTO::new);
     }
 
     @PostMapping("threads/{id}/messages")
-    public Mono<TopicThread> addMessage(@PathVariable String id, @RequestBody Message message, @RequestParam(defaultValue = "false") boolean anonymous) {
-        return topicThreadRepository.findById(id).flatMap(
-                topic -> {
-                    StoredMessage storedMessage = new StoredMessage();
-                    storedMessage.setId(String.valueOf(topic.getMessages().size()));
-                    storedMessage.setMessage(message);
-
-                    Metadata metadata = new Metadata();
-                    User user = new User();
-                    user.setName(message.getFrom().getName());
-                    user.setEmail("test@test.test");
-                    metadata.setSentBy(user);
-                    metadata.setAnonymousSender(anonymous);
-
-                    storedMessage.setMetadata(metadata);
-                    topic.getMessages().add(storedMessage);
-                    return topicThreadRepository.save(topic);
-                }
-        );
-
+    public Mono<ThreadDTO> addMessage(@PathVariable String id, @RequestBody Message message, @RequestParam(defaultValue = "false") boolean anonymous) {
+        return topicThreadService.addMessage(id, message, anonymous).map(ThreadDTO::new);
     }
 
     @DeleteMapping("threads/{id}")
     public Mono<Void> delete(@PathVariable String id) {
-        return topicThreadRepository.deleteById(id);
+        return topicThreadService.delete(id);
     }
 
     @DeleteMapping("threads/")
     public Mono<Void> deleteAll() {
         return topicThreadRepository.deleteAll();
+    }
+
+    @PatchMapping("threads/{threadId}/messages/{messageId}")
+    public Mono<ThreadDTO> readMessage(@PathVariable String threadId, @PathVariable String messageId, @RequestParam("read") boolean read) {
+        return topicThreadService.readMessage(threadId, messageId, read).map(ThreadDTO::new);
     }
 
 
@@ -89,15 +124,16 @@ public class MessagingController {
         topicThread.setUpdated(new Date());
         topicThread.setTags(List.of("test", "develop"));
 
-        Correspondent from = new User();
-        ((User) from).setEmail("test@email.com");
+        Correspondent from = new Correspondent();
+        from.setEmail("test@email.com");
         from.setName("Unknown User");
+        from.setGroupId("group");
         topicThread.setFrom(from);
 
-        Correspondent to = new UserGroup();
-        ((UserGroup) to).setGroupId("developers");
-        to.setName("Developers");
-        topicThread.setTo(to);
+        Correspondent to = new Correspondent();
+        to.setGroupId("developers");
+        to.setName("");
+        topicThread.setTo(List.of(to));
 
         Message message = new Message();
         message.setBody("This is a test message to check if it is saved successfully");
@@ -106,11 +142,11 @@ public class MessagingController {
         message.setTo(List.of(to));
 
         Metadata metadata = new Metadata();
-        metadata.setSentBy((User) from);
+        metadata.setSentBy(from);
         metadata.setAnonymousSender(false);
 
         StoredMessage storedMessage = new StoredMessage();
-        storedMessage.setId("0");
+//        storedMessage.setId("0");
         storedMessage.setMessage(message);
         storedMessage.setMetadata(metadata);
 
@@ -122,17 +158,18 @@ public class MessagingController {
 
         Metadata replyMetadata = new Metadata();
         replyMetadata.setAnonymousSender(true);
-        User respondent = new User();
+        Correspondent respondent = new Correspondent();
         respondent.setEmail("developer@example.email");
         respondent.setName("Random Developer X");
+        respondent.setGroupId("developers");
         replyMetadata.setSentBy(respondent);
 
         StoredMessage storedReply = new StoredMessage();
-        storedReply.setId("1");
+//        storedReply.setId("1");
         storedReply.setMessage(reply);
         storedReply.setMetadata(replyMetadata);
 
-        topicThread.setMessages(List.of(storedMessage, storedReply));
+        topicThread.setMessages(List.of(storedMessage, storedReply, storedMessage, storedReply, storedMessage, storedReply, storedMessage, storedReply));
 
         return topicThread;
     }

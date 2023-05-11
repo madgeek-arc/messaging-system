@@ -14,7 +14,7 @@ public class TopicThread {
     private String subject;
     private List<String> tags;
     private Correspondent from;
-    private Correspondent to;
+    private List<Correspondent> to;
     private List<StoredMessage> messages;
     private Date created;
     private Date updated;
@@ -55,11 +55,11 @@ public class TopicThread {
         this.from = from;
     }
 
-    public Correspondent getTo() {
+    public List<Correspondent> getTo() {
         return to;
     }
 
-    public void setTo(Correspondent to) {
+    public void setTo(List<Correspondent> to) {
         this.to = to;
     }
 

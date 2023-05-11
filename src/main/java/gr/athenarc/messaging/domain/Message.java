@@ -1,12 +1,13 @@
 package gr.athenarc.messaging.domain;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class Message <K extends Correspondent> {
+public class Message {
 
-    private K from;
-    private List<K> to;
+    private Correspondent from;
+    private List<? extends Correspondent> to;
     private String body;
     private Date date;
 
@@ -14,19 +15,30 @@ public class Message <K extends Correspondent> {
         // no-arg constructor
     }
 
-    public K getFrom() {
+    public Message(Correspondent from, List<? extends Correspondent> to, String body, Date date) {
+        this.from = from;
+        this.to = to;
+        this.body = body;
+        this.date = date;
+    }
+
+    public Message(final Message that) {
+        this(that.getFrom(), new ArrayList<>(that.getTo()), that.getBody(), new Date(that.date.getTime()));
+    }
+
+    public Correspondent getFrom() {
         return from;
     }
 
-    public void setFrom(K from) {
+    public void setFrom(Correspondent from) {
         this.from = from;
     }
 
-    public List<K> getTo() {
+    public List<? extends Correspondent> getTo() {
         return to;
     }
 
-    public void setTo(List<K> to) {
+    public void setTo(List<? extends Correspondent> to) {
         this.to = to;
     }
 

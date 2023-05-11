@@ -4,7 +4,7 @@ import java.util.Date;
 
 public class Metadata {
 
-    private User sentBy;
+    private Correspondent sentBy;
     private boolean anonymousSender;
     private boolean read = false;
     private Date readDate;
@@ -13,11 +13,18 @@ public class Metadata {
         // no-arg constructor
     }
 
-    public User getSentBy() {
+    public Metadata(Correspondent sentBy, boolean anonymousSender, boolean read, Date readDate) {
+        this.sentBy = sentBy;
+        this.anonymousSender = anonymousSender;
+        this.read = read;
+        this.readDate = readDate;
+    }
+
+    public Correspondent getSentBy() {
         return sentBy;
     }
 
-    public void setSentBy(User sentBy) {
+    public void setSentBy(Correspondent sentBy) {
         this.sentBy = sentBy;
     }
 
