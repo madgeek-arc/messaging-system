@@ -31,9 +31,9 @@ public class MessagingController {
         this.topicThreadService = topicThreadService;
     }
 
-    @GetMapping("threads/{id}")
-    public Mono<ThreadDTO> get(@PathVariable String id) {
-        return topicThreadService.get(id).map(ThreadDTO::new);
+    @GetMapping("threads/{threadId}")
+    public Mono<ThreadDTO> get(@PathVariable String threadId) {
+        return topicThreadService.get(threadId).map(ThreadDTO::new);
     }
 
     @GetMapping("threads/from")
@@ -90,19 +90,19 @@ public class MessagingController {
         return topicThreadRepository.save(createThread()).map(ThreadDTO::new);
     }
 
-    @PutMapping("threads/{id}")
-    public Mono<ThreadDTO> update(@PathVariable String id, @RequestBody TopicThread topicThread) {
-        return topicThreadService.update(id, topicThread).map(ThreadDTO::new);
+    @PutMapping("threads/{threadId}")
+    public Mono<ThreadDTO> update(@PathVariable String threadId, @RequestBody TopicThread topicThread) {
+        return topicThreadService.update(threadId, topicThread).map(ThreadDTO::new);
     }
 
-    @PostMapping("threads/{id}/messages")
-    public Mono<ThreadDTO> addMessage(@PathVariable String id, @RequestBody Message message, @RequestParam(defaultValue = "false") boolean anonymous) {
-        return topicThreadService.addMessage(id, message, anonymous).map(ThreadDTO::new);
+    @PostMapping("threads/{threadId}/messages")
+    public Mono<ThreadDTO> addMessage(@PathVariable String threadId, @RequestBody Message message, @RequestParam(defaultValue = "false") boolean anonymous) {
+        return topicThreadService.addMessage(threadId, message, anonymous).map(ThreadDTO::new);
     }
 
-    @DeleteMapping("threads/{id}")
-    public Mono<Void> delete(@PathVariable String id) {
-        return topicThreadService.delete(id);
+    @DeleteMapping("threads/{threadId}")
+    public Mono<Void> delete(@PathVariable String threadId) {
+        return topicThreadService.delete(threadId);
     }
 
     @DeleteMapping("threads/")
