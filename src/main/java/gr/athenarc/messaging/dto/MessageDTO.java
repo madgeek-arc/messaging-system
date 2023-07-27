@@ -1,6 +1,9 @@
 package gr.athenarc.messaging.dto;
 
-import gr.athenarc.messaging.domain.*;
+import gr.athenarc.messaging.domain.Correspondent;
+import gr.athenarc.messaging.domain.Message;
+import gr.athenarc.messaging.domain.Metadata;
+import gr.athenarc.messaging.domain.StoredMessage;
 
 import java.util.Date;
 import java.util.List;
@@ -8,7 +11,8 @@ import java.util.List;
 public class MessageDTO {
     private String id;
     private Correspondent from;
-    private List<? extends Correspondent> to;
+    private List<Correspondent> to;
+    private boolean anonymousSender;
     private String body;
     private Date date;
     private boolean read = false;
@@ -21,6 +25,7 @@ public class MessageDTO {
         this.id = sm.getId();
         this.from = sm.getMessage().getFrom();
         this.to = sm.getMessage().getTo();
+        this.anonymousSender = sm.getMetadata().isAnonymousSender();
         this.body = sm.getMessage().getBody();
         this.date = sm.getMessage().getDate();
         this.read = sm.getMetadata().isRead();
@@ -31,7 +36,7 @@ public class MessageDTO {
         StoredMessage storedMessage = new StoredMessage();
         storedMessage.setId(message.getId());
         storedMessage.setMessage(new Message(message.getFrom(), message.getTo(), message.getBody(), message.getDate()));
-        storedMessage.setMetadata(new Metadata(message.getFrom(), false, false, null));
+        storedMessage.setMetadata(new Metadata(message.getFrom(), message.isAnonymousSender(), false, null));
         return storedMessage;
     }
 
@@ -51,12 +56,20 @@ public class MessageDTO {
         this.from = from;
     }
 
-    public List<? extends Correspondent> getTo() {
+    public List<Correspondent> getTo() {
         return to;
     }
 
-    public void setTo(List<? extends Correspondent> to) {
+    public void setTo(List<Correspondent> to) {
         this.to = to;
+    }
+
+    public boolean isAnonymousSender() {
+        return anonymousSender;
+    }
+
+    public void setAnonymousSender(boolean anonymousSender) {
+        this.anonymousSender = anonymousSender;
     }
 
     public String getBody() {

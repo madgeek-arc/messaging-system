@@ -1,8 +1,10 @@
 package gr.athenarc.messaging.domain;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -11,7 +13,9 @@ public class TopicThread {
 
     @Id
     private String id;
+    @Indexed
     private String subject;
+    @Indexed
     private List<String> tags;
     private Correspondent from;
     private List<Correspondent> to;
@@ -61,6 +65,14 @@ public class TopicThread {
 
     public void setTo(List<Correspondent> to) {
         this.to = to;
+    }
+
+    public void addMessage(StoredMessage storedMessage) {
+        if (this.messages == null) {
+            this.messages = new ArrayList<>();
+        }
+        storedMessage.setId(String.valueOf(this.messages.size()));
+        this.messages.add(storedMessage);
     }
 
     public List<StoredMessage> getMessages() {

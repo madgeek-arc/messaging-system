@@ -1,5 +1,7 @@
 package gr.athenarc.messaging.domain;
 
+import java.util.Date;
+
 public class StoredMessage {
 
     private String id;
@@ -17,13 +19,11 @@ public class StoredMessage {
         metadata.setSentBy(message.getFrom());
         metadata.setAnonymousSender(anonymousSender);
 
-        Message messageCopy = new Message(message);
-
-        if (anonymousSender) {
-            messageCopy.getFrom().setEmail("");
-            messageCopy.getFrom().setName("");
+        if (message.getDate() == null) {
+            message.setDate(new Date());
         }
-        storedMessage.setMessage(messageCopy);
+
+        storedMessage.setMessage(message);
         storedMessage.setMetadata(metadata);
         return storedMessage;
     }

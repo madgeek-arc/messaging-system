@@ -1,9 +1,13 @@
 package gr.athenarc.messaging.domain;
 
+import org.springframework.data.mongodb.core.index.Indexed;
+
 public class Correspondent {
 
     private String name;
+    @Indexed
     private String email;
+    @Indexed
     private String groupId;
 
     public Correspondent() {

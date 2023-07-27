@@ -7,7 +7,7 @@ import java.util.List;
 public class Message {
 
     private Correspondent from;
-    private List<? extends Correspondent> to;
+    private List<Correspondent> to;
     private String body;
     private Date date;
 
@@ -15,7 +15,7 @@ public class Message {
         // no-arg constructor
     }
 
-    public Message(Correspondent from, List<? extends Correspondent> to, String body, Date date) {
+    public Message(Correspondent from, List<Correspondent> to, String body, Date date) {
         this.from = from;
         this.to = to;
         this.body = body;
@@ -23,7 +23,7 @@ public class Message {
     }
 
     public Message(final Message that) {
-        this(that.getFrom(), new ArrayList<>(that.getTo()), that.getBody(), new Date(that.date.getTime()));
+        this(that.getFrom(), new ArrayList<>(that.getTo()), that.getBody(), that.date != null ? new Date(that.date.getTime()) : new Date());
     }
 
     public Correspondent getFrom() {
@@ -34,11 +34,11 @@ public class Message {
         this.from = from;
     }
 
-    public List<? extends Correspondent> getTo() {
+    public List<Correspondent> getTo() {
         return to;
     }
 
-    public void setTo(List<? extends Correspondent> to) {
+    public void setTo(List<Correspondent> to) {
         this.to = to;
     }
 
