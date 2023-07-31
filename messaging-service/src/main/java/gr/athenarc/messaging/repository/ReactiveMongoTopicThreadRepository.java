@@ -10,21 +10,27 @@ import reactor.core.publisher.Flux;
 import java.util.List;
 
 @Repository
-public interface TopicThreadRepository extends ReactiveMongoRepository<TopicThread, String> {
+public interface ReactiveMongoTopicThreadRepository extends ReactiveMongoRepository<TopicThread, String>, ReactiveTopicThreadRepository {
 
+    @Override
     Flux<TopicThread> findAllByTagsContainingIgnoreCase(List<String> tags, Pageable pageable);
 
+    @Override
     Flux<TopicThread> findAllBySubjectContainingIgnoreCase(String subject, Pageable pageable);
 
+    @Override
     @Query(value = "{'$or':[ {'subject': { '$regex': ?0, $options: 'i'}}, {'tags': { '$regex': ?0, $options: 'i'}}, {'messages.message.from.email': { '$regex': ?0, $options: 'i'}}, {'messages.message.to.email': { '$regex': ?0, $options: 'i'}}, {'messages.message.to.groupId': { '$regex': ?0, $options: 'i'}} ]}")
     Flux<Object> findAllUsingQuery(String regex, Pageable pageable);
 
+    @Override
     @Query(value = "{'$and': [ {'to.groupId': ?0}, {'$or':[ {'subject': { '$regex': ?1, $options: 'i'}}, {'tags': { '$regex': ?1, $options: 'i'}}, {'messages.message.from.email': { '$regex': ?1, $options: 'i'}}, {'messages.message.to.email': { '$regex': ?1, $options: 'i'}}, {'messages.message.to.groupId': { '$regex': ?1, $options: 'i'}} ]} ]}")
     Flux<TopicThread> searchInbox(String groupId, String regex, Pageable pageable);
 
+    @Override
     @Query(value = "{'$and': [ {'$or':[ {'from.groupId': ?0}, {'messages.message.from.email': ?2}]}, {'$or':[ {'subject': { '$regex': ?1, $options: 'i'}}, {'tags': { '$regex': ?1, $options: 'i'}}, {'messages.message.from.email': { '$regex': ?1, $options: 'i'}}, {'messages.message.to.email': { '$regex': ?1, $options: 'i'}}, {'messages.message.to.groupId': { '$regex': ?1, $options: 'i'}} ]} ]}")
     Flux<TopicThread> searchOutbox(String groupId, String regex, String email, Pageable pageable);
 
+    @Override
     @Query(value = "{ '$and': [ {'to.groupId': { '$in': ?0 }}, {'messages.metadata.read': {'$eq': false}} ] }")
     Flux<TopicThread> searchUnread(List<String> groups, Pageable pageable);
 }

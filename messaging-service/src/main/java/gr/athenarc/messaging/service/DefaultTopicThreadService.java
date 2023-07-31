@@ -6,7 +6,7 @@ import gr.athenarc.messaging.domain.StoredMessage;
 import gr.athenarc.messaging.domain.TopicThread;
 import gr.athenarc.messaging.mailer.client.service.MailClient;
 import gr.athenarc.messaging.mailer.domain.EmailMessage;
-import gr.athenarc.messaging.repository.TopicThreadRepository;
+import gr.athenarc.messaging.repository.ReactiveMongoTopicThreadRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Example;
@@ -25,11 +25,11 @@ import java.util.stream.Collectors;
 public class DefaultTopicThreadService implements TopicThreadService {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultTopicThreadService.class);
-    private final TopicThreadRepository topicThreadRepository;
+    private final ReactiveMongoTopicThreadRepository topicThreadRepository;
     private final MailClient mailClient;
     private final GroupService groupService;
 
-    public DefaultTopicThreadService(TopicThreadRepository topicThreadRepository,
+    public DefaultTopicThreadService(ReactiveMongoTopicThreadRepository topicThreadRepository,
                                      MailClient mailClient,
                                      GroupService groupService) {
         this.topicThreadRepository = topicThreadRepository;

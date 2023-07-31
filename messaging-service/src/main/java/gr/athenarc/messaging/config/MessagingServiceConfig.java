@@ -8,6 +8,6 @@ import org.springframework.session.data.redis.config.annotation.web.server.Enabl
 @Configuration
 @EnableReCaptcha
 @EnableRedisWebSession
-public class MessagingSystemConfig {
+public class MessagingServiceConfig {
 
 }

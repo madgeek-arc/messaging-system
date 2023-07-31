@@ -3,7 +3,7 @@ package gr.athenarc.messaging.controller;
 import gr.athenarc.messaging.domain.*;
 import gr.athenarc.messaging.dto.ThreadDTO;
 import gr.athenarc.messaging.dto.UnreadMessages;
-import gr.athenarc.messaging.repository.TopicThreadRepository;
+import gr.athenarc.messaging.repository.ReactiveMongoTopicThreadRepository;
 import gr.athenarc.messaging.service.TopicThreadService;
 import gr.athenarc.recaptcha.annotation.ReCaptcha;
 import org.slf4j.Logger;
@@ -29,10 +29,10 @@ public class MessagingController {
 
     private static final Logger logger = LoggerFactory.getLogger(MessagingController.class);
 
-    private final TopicThreadRepository topicThreadRepository;
+    private final ReactiveMongoTopicThreadRepository topicThreadRepository;
     private final TopicThreadService topicThreadService;
 
-    public MessagingController(TopicThreadRepository topicThreadRepository,
+    public MessagingController(ReactiveMongoTopicThreadRepository topicThreadRepository,
                                TopicThreadService topicThreadService) {
         this.topicThreadRepository = topicThreadRepository;
         this.topicThreadService = topicThreadService;
@@ -202,13 +202,9 @@ public class MessagingController {
     }
 
     @DeleteMapping("threads/{threadId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public Mono<Void> delete(@PathVariable String threadId) {
         return topicThreadService.delete(threadId);
-    }
-
-    @DeleteMapping("threads/")
-    public Mono<Void> deleteAll() {
-        return topicThreadRepository.deleteAll();
     }
 
     @PatchMapping("threads/{threadId}/messages/{messageId}")
