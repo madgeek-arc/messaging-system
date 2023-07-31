@@ -53,19 +53,19 @@ public class MessagingController implements TopicThreadsController {
 
     // TODO: uncomment method for authenticated users ?
     @Override
-    @PreAuthorize("isAuthenticated()")
+//    @PreAuthorize("isAuthenticated()")
     public Mono<ThreadDTO> add(@RequestBody ThreadDTO thread) {
         return topicThreadService.add(ThreadDTO.toTopicThread(thread)).map(ThreadDTO::new);
     }
 
     @Override
-    @PreAuthorize("hasAuthority('ADMIN')")
+//    @PreAuthorize("hasAuthority('ADMIN')")
     public Mono<ThreadDTO> update(@PathVariable String threadId, @RequestBody TopicThread topicThread) {
         return topicThreadService.update(threadId, topicThread).map(ThreadDTO::new);
     }
 
     @Override
-    @PreAuthorize("isAuthenticated() and #message.from.email == #authentication.principal.getAttribute('email')")
+//    @PreAuthorize("isAuthenticated() and #message.from.email == #authentication.principal.getAttribute('email')")
     public Mono<ThreadDTO> addMessage(
             @PathVariable String threadId,
             @RequestBody Message message,
@@ -75,7 +75,7 @@ public class MessagingController implements TopicThreadsController {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('ADMIN')")
+//    @PreAuthorize("hasAuthority('ADMIN')")
     public Mono<Void> delete(@PathVariable String threadId) {
         return topicThreadService.delete(threadId);
     }
@@ -86,27 +86,25 @@ public class MessagingController implements TopicThreadsController {
     }
 
     @Override
-    @PreAuthorize("isAuthenticated()")
+//    @PreAuthorize("isAuthenticated()")
     public Mono<UnreadMessages> searchTotalUnread(@RequestParam List<String> groups) {
         return Mono.just(UnreadMessages.of(groups, Objects.requireNonNull(topicThreadRepository.searchUnread(groups, PageRequest.of(0, 1_000_000)).toStream().collect(Collectors.toList()))));
     }
 
     @Override
-    @PreAuthorize("isAuthenticated()")
+//    @PreAuthorize("isAuthenticated()")
     public Flux<ThreadDTO> searchInbox(
             @RequestParam String groupId,
             @RequestParam(defaultValue = "") String regex,
             @RequestParam(defaultValue = "created") String sortBy,
             @RequestParam(defaultValue = "DESC") Sort.Direction direction,
             @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "10") Integer size,
-            /*@Parameter(hidden = true) */ Authentication authentication) {
-        logger.info(authentication.toString());
+            @RequestParam(defaultValue = "10") Integer size) {
         return topicThreadRepository.searchInbox(groupId, regex, PageRequest.of(page, size, Sort.by(direction, sortBy))).map(ThreadDTO::new);
     }
 
     @Override
-    @PreAuthorize("isAuthenticated()")
+//    @PreAuthorize("isAuthenticated()")
     public Flux<ThreadDTO> searchInboxUnread(
             @RequestParam List<String> groups,
             @RequestParam(defaultValue = "created") String sortBy,
@@ -119,7 +117,7 @@ public class MessagingController implements TopicThreadsController {
     }
 
     @Override
-    @PreAuthorize("isAuthenticated()")
+//    @PreAuthorize("isAuthenticated()")
     public Flux<ThreadDTO> searchOutbox(
             @RequestParam String groupId,
             @RequestParam String email,
@@ -127,9 +125,9 @@ public class MessagingController implements TopicThreadsController {
             @RequestParam(defaultValue = "created") String sortBy,
             @RequestParam(defaultValue = "DESC") Sort.Direction direction,
             @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "10") Integer size,
-            /*@Parameter(hidden = true)*/ @AuthenticationPrincipal Authentication authentication) {
-        logger.info(authentication.toString());
+            @RequestParam(defaultValue = "10") Integer size/*,
+            *//*@Parameter(hidden = true)*//* @AuthenticationPrincipal Authentication authentication*/) {
+//        logger.info(authentication.toString());
         return topicThreadRepository.searchOutbox(groupId, regex, email, PageRequest.of(page, size, Sort.by(direction, sortBy))).map(ThreadDTO::new);
     }
 

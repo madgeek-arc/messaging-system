@@ -7,6 +7,7 @@ import gr.athenarc.messaging.dto.ThreadDTO;
 import gr.athenarc.messaging.dto.UnreadMessages;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -30,17 +31,25 @@ public class MessagingController implements TopicThreadsController {
 
     @Override
     public Mono<ThreadDTO> add(ThreadDTO thread) {
-        return null;
+        return this.webClient.post()
+                .uri(RestApiPaths.THREADS)
+                .body(BodyInserters.fromValue(ThreadDTO.toTopicThread(thread)))
+                .exchangeToMono(body -> body.bodyToMono(ThreadDTO.class));
     }
 
     @Override
     public Mono<ThreadDTO> update(String threadId, TopicThread topicThread) {
-        return null;
+        return this.webClient.put()
+                .uri(RestApiPaths.THREADS_id, threadId)
+                .body(BodyInserters.fromValue(topicThread))
+                .exchangeToMono(body -> body.bodyToMono(ThreadDTO.class));
     }
 
     @Override
     public Mono<Void> delete(String threadId) {
-        return null;
+        return this.webClient.delete()
+                .uri(RestApiPaths.THREADS_id, threadId)
+                .exchangeToMono(body -> body.bodyToMono(Void.class));
     }
 
     @Override
@@ -48,19 +57,54 @@ public class MessagingController implements TopicThreadsController {
         return null;
     }
 
-    @Override // FIXME
-    public Flux<ThreadDTO> searchInbox(String groupId, String regex, String sortBy, Sort.Direction direction, Integer page, Integer size, Authentication authentication) {
-        return null;
+    @Override
+    public Flux<ThreadDTO> searchInbox(String groupId, String regex, String sortBy, Sort.Direction direction, Integer page, Integer size) {
+        return this.webClient.get()
+                .uri(uriBuilder ->
+                        uriBuilder
+                                .path(RestApiPaths.INBOX_THREADS_SEARCH)
+                                .queryParam("groupId", groupId)
+                                .queryParam("regex", regex)
+                                .queryParam("sortBy", sortBy)
+                                .queryParam("direction", direction)
+                                .queryParam("page", page)
+                                .queryParam("size", size)
+                                .build())
+                .exchangeToFlux(body -> body.bodyToFlux(ThreadDTO.class));
     }
 
     @Override
     public Flux<ThreadDTO> searchInboxUnread(List<String> groups, String sortBy, Sort.Direction direction, Integer page, Integer size, Authentication authentication) {
-        return null;
+        return this.webClient.get()
+                .uri(uriBuilder ->
+                        uriBuilder
+                                .path(RestApiPaths.INBOX_THREADS_UNREAD)
+                                .queryParam("groups", groups)
+                                .queryParam("sortBy", sortBy)
+                                .queryParam("direction", direction)
+                                .queryParam("page", page)
+                                .queryParam("size", size)
+                                .queryParam("authentication", authentication)
+                                .build())
+                .exchangeToFlux(body -> body.bodyToFlux(ThreadDTO.class));
     }
 
-    @Override // FIXME
-    public Flux<ThreadDTO> searchOutbox(String groupId, String email, String regex, String sortBy, Sort.Direction direction, Integer page, Integer size, Authentication authentication) {
-        return null;
+    @Override
+    public Flux<ThreadDTO> searchOutbox(String groupId, String email, String regex, String sortBy, Sort.Direction direction, Integer page, Integer size/*, Authentication authentication*/) {
+        return this.webClient.get()
+                .uri(uriBuilder ->
+                        uriBuilder
+                                .path(RestApiPaths.OUTBOX_THREADS_SEARCH)
+                                .queryParam("groupId", groupId)
+                                .queryParam("email", email)
+                                .queryParam("regex", regex)
+                                .queryParam("sortBy", sortBy)
+                                .queryParam("direction", direction)
+                                .queryParam("page", page)
+                                .queryParam("size", size)
+//                                .queryParam("authentication", authentication)
+                                .build())
+                .exchangeToFlux(body -> body.bodyToFlux(ThreadDTO.class));
     }
 
     @Override // FIXME
@@ -68,14 +112,24 @@ public class MessagingController implements TopicThreadsController {
         return null;
     }
 
-    @Override // FIXME
+    @Override
     public Mono<ThreadDTO> addMessage(String threadId, Message message, boolean anonymous, Authentication authentication) {
-        return null;
+        return this.webClient.post()
+                .uri(RestApiPaths.THREADS_id_MESSAGES, threadId)
+                .body(BodyInserters.fromValue(message))
+                .exchangeToMono(body -> body.bodyToMono(ThreadDTO.class));
     }
 
-    @Override // FIXME
+    @Override
     public Mono<ThreadDTO> readMessage(String threadId, String messageId, boolean read) {
-        return null;
+        return this.webClient.patch()
+                .uri(uriBuilder ->
+                        uriBuilder
+                                .path(RestApiPaths.THREADS_id_MESSAGES_id)
+                                .queryParam("read", read)
+                                .build(threadId, messageId)
+                )
+                .exchangeToMono(body -> body.bodyToMono(ThreadDTO.class));
     }
 
 }

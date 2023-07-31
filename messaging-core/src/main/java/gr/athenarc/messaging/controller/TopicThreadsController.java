@@ -43,8 +43,7 @@ public interface TopicThreadsController {
             @RequestParam(defaultValue = "created") String sortBy,
             @RequestParam(defaultValue = "DESC") Sort.Direction direction,
             @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "10") Integer size,
-            Authentication authentication);
+            @RequestParam(defaultValue = "10") Integer size);
 
     @GetMapping(INBOX_THREADS_UNREAD)
     Flux<ThreadDTO> searchInboxUnread(
@@ -63,8 +62,8 @@ public interface TopicThreadsController {
             @RequestParam(defaultValue = "created") String sortBy,
             @RequestParam(defaultValue = "DESC") Sort.Direction direction,
             @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "10") Integer size,
-            Authentication authentication);
+            @RequestParam(defaultValue = "10") Integer size/*,
+            Authentication authentication*/);
 
     @PostMapping(THREADS_id_MESSAGES)
     Mono<ThreadDTO> addMessage(
