@@ -2,17 +2,15 @@ package gr.athenarc.messaging.repository;
 
 import gr.athenarc.messaging.domain.TopicThread;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.mongodb.repository.Query;
-import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
-import org.springframework.data.repository.reactive.ReactiveSortingRepository;
-import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 
 import java.util.List;
 
-public interface ReactiveTopicThreadRepository extends ReactiveSortingRepository<TopicThread, String> {
+public interface ReactiveTopicThreadRepository {
 
     Flux<TopicThread> findAllByTagsContainingIgnoreCase(List<String> tags, Pageable pageable);
+
+    Flux<TopicThread> findAllByTagsContainingIgnoreCaseAndSubjectContainingIgnoreCase(List<String> tags, String subject, Pageable pageable);
 
     Flux<TopicThread> findAllBySubjectContainingIgnoreCase(String subject, Pageable pageable);
 

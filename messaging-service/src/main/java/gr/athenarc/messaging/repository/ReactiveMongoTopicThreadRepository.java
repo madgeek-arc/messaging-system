@@ -16,6 +16,9 @@ public interface ReactiveMongoTopicThreadRepository extends ReactiveMongoReposit
     Flux<TopicThread> findAllByTagsContainingIgnoreCase(List<String> tags, Pageable pageable);
 
     @Override
+    Flux<TopicThread> findAllByTagsContainingIgnoreCaseAndSubjectContainingIgnoreCase(List<String> tags, String subject, Pageable pageable);
+
+    @Override
     Flux<TopicThread> findAllBySubjectContainingIgnoreCase(String subject, Pageable pageable);
 
     @Override

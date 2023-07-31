@@ -1,15 +1,10 @@
 package gr.athenarc.messaging.dto;
 
 import gr.athenarc.messaging.domain.Correspondent;
-import gr.athenarc.messaging.domain.StoredMessage;
 import gr.athenarc.messaging.domain.TopicThread;
-import org.springframework.data.annotation.Id;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class ThreadDTO {

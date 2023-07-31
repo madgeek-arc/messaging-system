@@ -11,27 +11,27 @@ import java.util.List;
 @SpringBootTest
 class MessagingSystemApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
+    @Test
+    void contextLoads() {
+    }
 
-	@Test
-	void createThread() {
-		TopicThread topicThread = new TopicThread();
-		topicThread.setMessages(null);
-		topicThread.setSubject("Test");
-		topicThread.setCreated(new Date());
-		topicThread.setUpdated(new Date());
-		topicThread.setTags(List.of("test", "develop"));
+    @Test
+    void createThread() {
+        TopicThread topicThread = new TopicThread();
+        topicThread.setMessages(null);
+        topicThread.setSubject("Test");
+        topicThread.setCreated(new Date());
+        topicThread.setUpdated(new Date());
+        topicThread.setTags(List.of("test", "develop"));
 
-		Correspondent from = new Correspondent();
-		from.setEmail("test@email.com");
-		from.setName("Unknown User");
-		topicThread.setFrom(from);
+        Correspondent from = new Correspondent();
+        from.setEmail("test@email.com");
+        from.setName("Unknown User");
+        topicThread.setFrom(from);
 
-		Correspondent to = new Correspondent();
-		to.setGroupId("developers");
-		to.setName("Developers");
-		topicThread.setTo(List.of(to));
-	}
+        Correspondent to = new Correspondent();
+        to.setGroupId("developers");
+        to.setName("Developers");
+        topicThread.setTo(List.of(to));
+    }
 }
