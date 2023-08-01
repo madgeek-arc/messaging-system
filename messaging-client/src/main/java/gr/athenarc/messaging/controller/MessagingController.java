@@ -6,7 +6,7 @@ import gr.athenarc.messaging.domain.TopicThread;
 import gr.athenarc.messaging.dto.ThreadDTO;
 import gr.athenarc.messaging.dto.UnreadMessages;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.Authentication;
+//import org.springframework.security.core.Authentication;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
@@ -33,7 +33,7 @@ public class MessagingController implements TopicThreadsController {
     public Mono<ThreadDTO> add(ThreadDTO thread) {
         return this.webClient.post()
                 .uri(RestApiPaths.THREADS)
-                .body(BodyInserters.fromValue(ThreadDTO.toTopicThread(thread)))
+                .body(BodyInserters.fromValue(thread))
                 .exchangeToMono(body -> body.bodyToMono(ThreadDTO.class));
     }
 
@@ -54,7 +54,11 @@ public class MessagingController implements TopicThreadsController {
 
     @Override
     public Mono<UnreadMessages> searchTotalUnread(List<String> groups) {
-        return null;
+        return this.webClient.get()
+                .uri(uriBuilder -> uriBuilder.path(RestApiPaths.INBOX_TOTAL_UNREAD)
+                        .queryParam("groups", groups)
+                        .build())
+                .exchangeToMono(body -> body.bodyToMono(UnreadMessages.class));
     }
 
     @Override
@@ -74,7 +78,7 @@ public class MessagingController implements TopicThreadsController {
     }
 
     @Override
-    public Flux<ThreadDTO> searchInboxUnread(List<String> groups, String sortBy, Sort.Direction direction, Integer page, Integer size, Authentication authentication) {
+    public Flux<ThreadDTO> searchInboxUnread(List<String> groups, String sortBy, Sort.Direction direction, Integer page, Integer size/*, Authentication authentication*/) {
         return this.webClient.get()
                 .uri(uriBuilder ->
                         uriBuilder
@@ -84,20 +88,20 @@ public class MessagingController implements TopicThreadsController {
                                 .queryParam("direction", direction)
                                 .queryParam("page", page)
                                 .queryParam("size", size)
-                                .queryParam("authentication", authentication)
+//                                .queryParam("authentication", authentication)
                                 .build())
                 .exchangeToFlux(body -> body.bodyToFlux(ThreadDTO.class));
     }
 
     @Override
-    public Flux<ThreadDTO> searchOutbox(String groupId, String email, String regex, String sortBy, Sort.Direction direction, Integer page, Integer size/*, Authentication authentication*/) {
+    public Flux<ThreadDTO> searchOutbox(String groupId, String regex, String email, String sortBy, Sort.Direction direction, Integer page, Integer size/*, Authentication authentication*/) {
         return this.webClient.get()
                 .uri(uriBuilder ->
                         uriBuilder
                                 .path(RestApiPaths.OUTBOX_THREADS_SEARCH)
                                 .queryParam("groupId", groupId)
-                                .queryParam("email", email)
                                 .queryParam("regex", regex)
+                                .queryParam("email", email)
                                 .queryParam("sortBy", sortBy)
                                 .queryParam("direction", direction)
                                 .queryParam("page", page)
@@ -107,13 +111,8 @@ public class MessagingController implements TopicThreadsController {
                 .exchangeToFlux(body -> body.bodyToFlux(ThreadDTO.class));
     }
 
-    @Override // FIXME
-    public Mono<ThreadDTO> addExternal(String recaptcha, ThreadDTO thread) {
-        return null;
-    }
-
     @Override
-    public Mono<ThreadDTO> addMessage(String threadId, Message message, boolean anonymous, Authentication authentication) {
+    public Mono<ThreadDTO> addMessage(String threadId, Message message, boolean anonymous/*, Authentication authentication*/) {
         return this.webClient.post()
                 .uri(RestApiPaths.THREADS_id_MESSAGES, threadId)
                 .body(BodyInserters.fromValue(message))

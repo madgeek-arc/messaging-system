@@ -5,7 +5,7 @@ import gr.athenarc.messaging.domain.TopicThread;
 import gr.athenarc.messaging.dto.ThreadDTO;
 import gr.athenarc.messaging.dto.UnreadMessages;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.Authentication;
+//import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -22,9 +22,6 @@ public interface TopicThreadsController {
     Mono<ThreadDTO> get(@PathVariable String threadId);
 
     @PostMapping(THREADS)
-    Mono<ThreadDTO> addExternal(@RequestHeader("g-recaptcha-response") String recaptcha, @RequestBody ThreadDTO thread);
-
-    @PostMapping(THREADS_INTERNAL)
     Mono<ThreadDTO> add(@RequestBody ThreadDTO thread);
 
     @PutMapping(THREADS_PUT_ID)
@@ -51,14 +48,14 @@ public interface TopicThreadsController {
             @RequestParam(defaultValue = "created") String sortBy,
             @RequestParam(defaultValue = "DESC") Sort.Direction direction,
             @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "10") Integer size,
-            Authentication authentication);
+            @RequestParam(defaultValue = "10") Integer size/*,
+            Authentication authentication*/);
 
     @GetMapping(OUTBOX_THREADS_SEARCH)
     Flux<ThreadDTO> searchOutbox(
             @RequestParam String groupId,
-            @RequestParam String email,
             @RequestParam(defaultValue = "") String regex,
+            @RequestParam String email,
             @RequestParam(defaultValue = "created") String sortBy,
             @RequestParam(defaultValue = "DESC") Sort.Direction direction,
             @RequestParam(defaultValue = "0") Integer page,
@@ -69,8 +66,8 @@ public interface TopicThreadsController {
     Mono<ThreadDTO> addMessage(
             @PathVariable String threadId,
             @RequestBody Message message,
-            @RequestParam(defaultValue = "false") boolean anonymous,
-            Authentication authentication);
+            @RequestParam(defaultValue = "false") boolean anonymous/*,
+            Authentication authentication*/);
 
     @PatchMapping(THREADS_id_MESSAGES_id)
     Mono<ThreadDTO> readMessage(@PathVariable String threadId, @PathVariable String messageId, @RequestParam("read") boolean read);

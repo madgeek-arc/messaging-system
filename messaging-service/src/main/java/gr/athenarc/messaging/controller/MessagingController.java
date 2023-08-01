@@ -40,15 +40,14 @@ public class MessagingController implements TopicThreadsController {
         this.topicThreadService = topicThreadService;
     }
 
-    @Override
-    public Mono<ThreadDTO> get(@PathVariable String threadId) {
-        return topicThreadService.get(threadId).map(ThreadDTO::new);
+    @PostMapping(THREADS + "/public")
+    public Mono<ThreadDTO> addExternal(@RequestHeader("g-recaptcha-response") String recaptcha, @RequestBody ThreadDTO thread) {
+        return topicThreadService.add(ThreadDTO.toTopicThread(thread)).map(ThreadDTO::new);
     }
 
     @Override
-    @PostMapping(THREADS)
-    public Mono<ThreadDTO> addExternal(@RequestHeader("g-recaptcha-response") String recaptcha, @RequestBody ThreadDTO thread) {
-        return topicThreadService.add(ThreadDTO.toTopicThread(thread)).map(ThreadDTO::new);
+    public Mono<ThreadDTO> get(@PathVariable String threadId) {
+        return topicThreadService.get(threadId).map(ThreadDTO::new);
     }
 
     // TODO: uncomment method for authenticated users ?
@@ -69,8 +68,8 @@ public class MessagingController implements TopicThreadsController {
     public Mono<ThreadDTO> addMessage(
             @PathVariable String threadId,
             @RequestBody Message message,
-            @RequestParam(defaultValue = "false") boolean anonymous,
-            /*@Parameter(hidden = true)*/ @AuthenticationPrincipal Authentication authentication) {
+            @RequestParam(defaultValue = "false") boolean anonymous/*,
+            *//*@Parameter(hidden = true)*//* @AuthenticationPrincipal Authentication authentication*/) {
         return topicThreadService.addMessage(threadId, message, anonymous).map(ThreadDTO::new);
     }
 
@@ -110,9 +109,9 @@ public class MessagingController implements TopicThreadsController {
             @RequestParam(defaultValue = "created") String sortBy,
             @RequestParam(defaultValue = "DESC") Sort.Direction direction,
             @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "10") Integer size,
-            /*@Parameter(hidden = true) */ Authentication authentication) {
-        logger.info(authentication.toString());
+            @RequestParam(defaultValue = "10") Integer size/*,
+            *//*@Parameter(hidden = true) *//* Authentication authentication*/) {
+//        logger.info(authentication.toString());
         return topicThreadRepository.searchUnread(groups, PageRequest.of(page, size, Sort.by(direction, sortBy))).map(ThreadDTO::new);
     }
 
@@ -120,8 +119,8 @@ public class MessagingController implements TopicThreadsController {
 //    @PreAuthorize("isAuthenticated()")
     public Flux<ThreadDTO> searchOutbox(
             @RequestParam String groupId,
-            @RequestParam String email,
             @RequestParam(defaultValue = "") String regex,
+            @RequestParam String email,
             @RequestParam(defaultValue = "created") String sortBy,
             @RequestParam(defaultValue = "DESC") Sort.Direction direction,
             @RequestParam(defaultValue = "0") Integer page,

@@ -47,11 +47,13 @@ public class DefaultTopicThreadService implements TopicThreadService {
         Date now = new Date();
         topicThread.setCreated(now);
         topicThread.setUpdated(now);
-        for (int i = 0; i < topicThread.getMessages().size(); i++) {
-            topicThread.getMessages().get(i).setId(String.valueOf(i));
-            topicThread.getMessages().get(i).getMessage().setDate(now);
+        if (topicThread.getMessages() != null) {
+            for (int i = 0; i < topicThread.getMessages().size(); i++) {
+                topicThread.getMessages().get(i).setId(String.valueOf(i));
+                topicThread.getMessages().get(i).getMessage().setDate(now);
+            }
+            logger.warn("Adding new Thread with {} messages", topicThread.getMessages().size());
         }
-        logger.warn("Adding new Thread with {} messages", topicThread.getMessages().size());
         return topicThreadRepository.save(topicThread);
     }
 
@@ -79,14 +81,14 @@ public class DefaultTopicThreadService implements TopicThreadService {
 
     @Override
     public Mono<TopicThread> addMessage(String threadId, Message message, boolean anonymousSender) {
-        Set<String> groups = message.getTo().stream().map(Correspondent::getGroupId).filter(Objects::nonNull).collect(Collectors.toSet());
-        groups.add(message.getFrom().getGroupId());
-        Mono<List> mono = Mono.from(Flux.fromIterable(groups).flatMap(groupService::getUserEmails));
+//        Set<String> groups = message.getTo().stream().map(Correspondent::getGroupId).filter(Objects::nonNull).collect(Collectors.toSet());
+//        groups.add(message.getFrom().getGroupId());
+//        Mono<List> mono = Mono.from(Flux.fromIterable(groups).flatMap(groupService::getUserEmails));
         return topicThreadRepository.findById(threadId).flatMap(
                         topic -> {
                             StoredMessage storedMessage = StoredMessage.of(message, anonymousSender);
                             topic.getMessages().add(storedMessage);
-                            sendEmails(topic, message, mono);
+//                            sendEmails(topic, message, mono);
                             return topicThreadRepository.save(topic);
                         })
                 .log();
