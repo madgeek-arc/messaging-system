@@ -24,12 +24,12 @@ public class UnreadMessages {
         Map<String, Integer> groupUnread = new TreeMap<>();
         return Mono.from(threads.map(thread -> {
 
-                    int unreadCount = thread.getUnread() > 0 ? 1 : 0;
+                    boolean unreadCount = thread.isUnread();
 
                     for (Correspondent correspondent : thread.getTo()) {
                         if (groups.contains(correspondent.getGroupId())) {
                             groupUnread.putIfAbsent(correspondent.getGroupId(), 0);
-                            groupUnread.put(correspondent.getGroupId(), groupUnread.get(correspondent.getGroupId()) + unreadCount);
+                            groupUnread.put(correspondent.getGroupId(), groupUnread.get(correspondent.getGroupId()) + 1);
                         }
                     }
                     return groupUnread;
