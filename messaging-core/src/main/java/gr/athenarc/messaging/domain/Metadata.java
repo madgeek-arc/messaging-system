@@ -1,23 +1,27 @@
 package gr.athenarc.messaging.domain;
 
-import java.util.Date;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class Metadata {
 
     private Correspondent sentBy;
     private boolean anonymousSender;
-    private boolean read = false;
-    private Date readDate;
+    private Set<String> readBy = new TreeSet<>();
 
     public Metadata() {
         // no-arg constructor
     }
 
-    public Metadata(Correspondent sentBy, boolean anonymousSender, boolean read, Date readDate) {
+    public Metadata(Correspondent sentBy, boolean anonymousSender) {
         this.sentBy = sentBy;
         this.anonymousSender = anonymousSender;
-        this.read = read;
-        this.readDate = readDate;
+    }
+
+    public Metadata(Correspondent sentBy, boolean anonymousSender, Set<String> readBy) {
+        this.sentBy = sentBy;
+        this.anonymousSender = anonymousSender;
+        this.readBy = readBy;
     }
 
     public Correspondent getSentBy() {
@@ -36,19 +40,11 @@ public class Metadata {
         this.anonymousSender = anonymousSender;
     }
 
-    public boolean isRead() {
-        return read;
+    public Set<String> getReadBy() {
+        return readBy;
     }
 
-    public void setRead(boolean read) {
-        this.read = read;
-    }
-
-    public Date getReadDate() {
-        return readDate;
-    }
-
-    public void setReadDate(Date readDate) {
-        this.readDate = readDate;
+    public void setReadBy(Set<String> readBy) {
+        this.readBy = readBy;
     }
 }

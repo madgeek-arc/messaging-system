@@ -3,7 +3,6 @@ package gr.athenarc.messaging.service;
 import gr.athenarc.messaging.domain.Message;
 import gr.athenarc.messaging.domain.StoredMessage;
 import gr.athenarc.messaging.domain.TopicThread;
-import gr.athenarc.messaging.mailer.client.service.MailClient;
 import gr.athenarc.messaging.repository.ReactiveMongoTopicThreadRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,15 +19,9 @@ public class DefaultTopicThreadService implements TopicThreadService {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultTopicThreadService.class);
     private final ReactiveMongoTopicThreadRepository topicThreadRepository;
-    private final MailClient mailClient;
-    private final GroupService groupService;
 
-    public DefaultTopicThreadService(ReactiveMongoTopicThreadRepository topicThreadRepository,
-                                     MailClient mailClient,
-                                     GroupService groupService) {
+    public DefaultTopicThreadService(ReactiveMongoTopicThreadRepository topicThreadRepository) {
         this.topicThreadRepository = topicThreadRepository;
-        this.mailClient = mailClient;
-        this.groupService = groupService;
     }
 
     @Override
@@ -45,6 +38,7 @@ public class DefaultTopicThreadService implements TopicThreadService {
             for (int i = 0; i < topicThread.getMessages().size(); i++) {
                 topicThread.getMessages().get(i).setId(String.valueOf(i));
                 topicThread.getMessages().get(i).getMessage().setDate(now);
+                topicThread.getMessages().get(i).getMetadata().getReadBy().add(topicThread.getFrom().getEmail());
             }
             logger.warn("Adding new Thread with {} messages", topicThread.getMessages().size());
         }
@@ -55,7 +49,7 @@ public class DefaultTopicThreadService implements TopicThreadService {
     public Mono<TopicThread> update(String id, TopicThread topicThread) {
         return topicThreadRepository.findById(id)
                 .switchIfEmpty(Mono.error(new RuntimeException("Not Found")))
-                .doOnSuccess(s -> topicThreadRepository.save(topicThread));
+                .flatMap(s -> topicThreadRepository.save(topicThread));
     }
 
     @Override
@@ -79,6 +73,7 @@ public class DefaultTopicThreadService implements TopicThreadService {
                         topic -> {
                             StoredMessage storedMessage = StoredMessage.of(message, anonymousSender);
                             storedMessage.setId(String.valueOf(topic.getMessages().size()));
+                            storedMessage.getMetadata().getReadBy().add(message.getFrom().getEmail());
                             topic.getMessages().add(storedMessage);
                             return topicThreadRepository.save(topic);
                         })
@@ -86,12 +81,13 @@ public class DefaultTopicThreadService implements TopicThreadService {
     }
 
     @Override
-    public Mono<TopicThread> readMessage(String threadId, String messageId, boolean read) {
+    public Mono<TopicThread> readMessage(String threadId, String messageId, boolean read, String userId) {
         return get(threadId).flatMap(thread -> {
             StoredMessage message = thread.getMessages().get(Integer.parseInt(messageId));
-            message.getMetadata().setRead(read);
             if (read) {
-                message.getMetadata().setReadDate(new Date());
+                message.getMetadata().getReadBy().add(userId);
+            } else {
+                message.getMetadata().getReadBy().remove(userId);
             }
             return this.topicThreadRepository.save(thread);
         });

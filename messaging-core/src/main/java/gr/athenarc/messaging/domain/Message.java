@@ -10,20 +10,22 @@ public class Message {
     private List<Correspondent> to;
     private String body;
     private Date date;
+    private String replyToMessageId;
 
     public Message() {
         // no-arg constructor
     }
 
-    public Message(Correspondent from, List<Correspondent> to, String body, Date date) {
+    public Message(Correspondent from, List<Correspondent> to, String body, Date date, String replyToMessageId) {
         this.from = from;
         this.to = to;
         this.body = body;
         this.date = date;
+        this.replyToMessageId =replyToMessageId;
     }
 
     public Message(final Message that) {
-        this(that.getFrom(), new ArrayList<>(that.getTo()), that.getBody(), that.date != null ? new Date(that.date.getTime()) : new Date());
+        this(that.getFrom(), new ArrayList<>(that.getTo()), that.getBody(), that.date != null ? new Date(that.date.getTime()) : new Date(), that.replyToMessageId);
     }
 
     public Correspondent getFrom() {
@@ -56,5 +58,13 @@ public class Message {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    public String getReplyToMessageId() {
+        return replyToMessageId;
+    }
+
+    public void setReplyToMessageId(String replyToMessageId) {
+        this.replyToMessageId = replyToMessageId;
     }
 }

@@ -3,7 +3,7 @@ package gr.athenarc.messaging.controller;
 import gr.athenarc.messaging.domain.Message;
 import gr.athenarc.messaging.domain.TopicThread;
 import gr.athenarc.messaging.dto.ThreadDTO;
-import gr.athenarc.messaging.dto.UnreadMessages;
+import gr.athenarc.messaging.dto.UnreadThreads;
 import org.springframework.data.domain.Sort;
 //import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +19,8 @@ public interface TopicThreadsController {
 
 
     @GetMapping(THREADS_id)
-    Mono<ThreadDTO> get(@PathVariable String threadId);
+    Mono<ThreadDTO> get(@PathVariable String threadId,
+                        @RequestParam(defaultValue = "") String email);
 
     @PostMapping(THREADS)
     Mono<ThreadDTO> add(@RequestBody ThreadDTO thread);
@@ -31,12 +32,14 @@ public interface TopicThreadsController {
     Mono<Void> delete(@PathVariable String threadId);
 
     @GetMapping(INBOX_TOTAL_UNREAD)
-    Mono<UnreadMessages> searchTotalUnread(@RequestParam List<String> groups);
+    Mono<UnreadThreads> searchUnreadThreads(@RequestParam List<String> groups,
+                                            @RequestParam(defaultValue = "") String email);
 
     @GetMapping(INBOX_THREADS_SEARCH)
     Flux<ThreadDTO> searchInbox(
             @RequestParam String groupId,
             @RequestParam(defaultValue = "") String regex,
+            @RequestParam(defaultValue = "") String email,
             @RequestParam(defaultValue = "created") String sortBy,
             @RequestParam(defaultValue = "DESC") Sort.Direction direction,
             @RequestParam(defaultValue = "0") Integer page,
@@ -45,6 +48,7 @@ public interface TopicThreadsController {
     @GetMapping(INBOX_THREADS_UNREAD)
     Flux<ThreadDTO> searchInboxUnread(
             @RequestParam List<String> groups,
+            @RequestParam(defaultValue = "") String email,
             @RequestParam(defaultValue = "created") String sortBy,
             @RequestParam(defaultValue = "DESC") Sort.Direction direction,
             @RequestParam(defaultValue = "0") Integer page,
@@ -70,7 +74,10 @@ public interface TopicThreadsController {
             Authentication authentication*/);
 
     @PatchMapping(THREADS_id_MESSAGES_id)
-    Mono<ThreadDTO> readMessage(@PathVariable String threadId, @PathVariable String messageId, @RequestParam("read") boolean read);
+    Mono<ThreadDTO> readMessage(@PathVariable String threadId,
+                                @PathVariable String messageId,
+                                @RequestParam("read") boolean read,
+                                @RequestParam(required = false, value = "userId") String userId);
 
 //    @GetMapping(THREADS_FROM)
 //    Flux<ThreadDTO> getThreadsFrom(@RequestParam String email);

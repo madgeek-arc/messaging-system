@@ -98,13 +98,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- TODO: remove mailing functionality from service -->
-        <dependency>
-            <groupId>gr.athenarc.messaging</groupId>
-            <artifactId>mailer-client</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-
     </dependencies>
 
     <build>

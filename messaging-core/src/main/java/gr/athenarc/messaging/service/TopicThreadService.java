@@ -15,6 +15,6 @@ public interface TopicThreadService extends CrudOperations<TopicThread, String> 
 
     Mono<TopicThread> addMessage(String threadId, Message message, boolean anonymousSender);
 
-    Mono<TopicThread> readMessage(String threadId, String messageId, boolean read);
+    Mono<TopicThread> readMessage(String threadId, String messageId, boolean read, String userId);
 
 }

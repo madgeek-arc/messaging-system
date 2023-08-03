@@ -4,9 +4,8 @@ import gr.athenarc.messaging.config.MessagingClientProperties;
 import gr.athenarc.messaging.domain.Message;
 import gr.athenarc.messaging.domain.TopicThread;
 import gr.athenarc.messaging.dto.ThreadDTO;
-import gr.athenarc.messaging.dto.UnreadMessages;
+import gr.athenarc.messaging.dto.UnreadThreads;
 import org.springframework.data.domain.Sort;
-//import org.springframework.security.core.Authentication;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
@@ -23,9 +22,12 @@ public class MessagingController implements TopicThreadsController {
     }
 
     @Override
-    public Mono<ThreadDTO> get(String threadId) {
+    public Mono<ThreadDTO> get(String threadId, String email) {
         return this.webClient.get()
-                .uri(RestApiPaths.THREADS_id, threadId)
+                .uri(uriBuilder -> uriBuilder
+                        .path(RestApiPaths.THREADS_id)
+                        .queryParam("email", email)
+                        .build(threadId))
                 .exchangeToMono(body -> body.bodyToMono(ThreadDTO.class));
     }
 
@@ -53,22 +55,24 @@ public class MessagingController implements TopicThreadsController {
     }
 
     @Override
-    public Mono<UnreadMessages> searchTotalUnread(List<String> groups) {
+    public Mono<UnreadThreads> searchUnreadThreads(List<String> groups, String email) {
         return this.webClient.get()
                 .uri(uriBuilder -> uriBuilder.path(RestApiPaths.INBOX_TOTAL_UNREAD)
                         .queryParam("groups", groups)
+                        .queryParam("email", email)
                         .build())
-                .exchangeToMono(body -> body.bodyToMono(UnreadMessages.class));
+                .exchangeToMono(body -> body.bodyToMono(UnreadThreads.class));
     }
 
     @Override
-    public Flux<ThreadDTO> searchInbox(String groupId, String regex, String sortBy, Sort.Direction direction, Integer page, Integer size) {
+    public Flux<ThreadDTO> searchInbox(String groupId, String regex, String email, String sortBy, Sort.Direction direction, Integer page, Integer size) {
         return this.webClient.get()
                 .uri(uriBuilder ->
                         uriBuilder
                                 .path(RestApiPaths.INBOX_THREADS_SEARCH)
                                 .queryParam("groupId", groupId)
                                 .queryParam("regex", regex)
+                                .queryParam("email", email)
                                 .queryParam("sortBy", sortBy)
                                 .queryParam("direction", direction)
                                 .queryParam("page", page)
@@ -78,12 +82,13 @@ public class MessagingController implements TopicThreadsController {
     }
 
     @Override
-    public Flux<ThreadDTO> searchInboxUnread(List<String> groups, String sortBy, Sort.Direction direction, Integer page, Integer size/*, Authentication authentication*/) {
+    public Flux<ThreadDTO> searchInboxUnread(List<String> groups, String email, String sortBy, Sort.Direction direction, Integer page, Integer size/*, Authentication authentication*/) {
         return this.webClient.get()
                 .uri(uriBuilder ->
                         uriBuilder
                                 .path(RestApiPaths.INBOX_THREADS_UNREAD)
                                 .queryParam("groups", groups)
+                                .queryParam("email", email)
                                 .queryParam("sortBy", sortBy)
                                 .queryParam("direction", direction)
                                 .queryParam("page", page)
@@ -114,18 +119,22 @@ public class MessagingController implements TopicThreadsController {
     @Override
     public Mono<ThreadDTO> addMessage(String threadId, Message message, boolean anonymous/*, Authentication authentication*/) {
         return this.webClient.post()
-                .uri(RestApiPaths.THREADS_id_MESSAGES, threadId)
+                .uri(uriBuilder -> uriBuilder
+                        .path(RestApiPaths.THREADS_id_MESSAGES)
+                        .queryParam("anonymous", anonymous)
+                        .build(threadId))
                 .body(BodyInserters.fromValue(message))
                 .exchangeToMono(body -> body.bodyToMono(ThreadDTO.class));
     }
 
     @Override
-    public Mono<ThreadDTO> readMessage(String threadId, String messageId, boolean read) {
+    public Mono<ThreadDTO> readMessage(String threadId, String messageId, boolean read, String userId) {
         return this.webClient.patch()
                 .uri(uriBuilder ->
                         uriBuilder
                                 .path(RestApiPaths.THREADS_id_MESSAGES_id)
                                 .queryParam("read", read)
+                                .queryParam("userId", userId)
                                 .build(threadId, messageId)
                 )
                 .exchangeToMono(body -> body.bodyToMono(ThreadDTO.class));

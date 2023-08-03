@@ -1,20 +1,20 @@
 package gr.athenarc.messaging.dto;
 
-public class GroupUnreadMessages {
+public class GroupUnread {
 
     private String groupId;
     private int unread = 0;
 
-    public GroupUnreadMessages() {
+    public GroupUnread() {
     }
 
-    public GroupUnreadMessages(String groupId, int unread) {
+    public GroupUnread(String groupId, int unread) {
         this.groupId = groupId;
         this.unread = unread;
     }
 
-    public static GroupUnreadMessages of(String groupId, int unread) {
-        GroupUnreadMessages group = new GroupUnreadMessages();
+    public static GroupUnread of(String groupId, int unread) {
+        GroupUnread group = new GroupUnread();
         group.setGroupId(groupId);
         group.setUnread(unread);
         if (unread <= 0) {

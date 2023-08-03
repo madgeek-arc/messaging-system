@@ -16,27 +16,27 @@ public class MessageDTO {
     private String body;
     private Date date;
     private boolean read = false;
-    private Date readDate;
+    private String replyToMessageId;
 
     public MessageDTO() {
     }
 
-    public MessageDTO(StoredMessage sm) {
+    public MessageDTO(StoredMessage sm, String userId) {
         this.id = sm.getId();
         this.from = sm.getMessage().getFrom();
         this.to = sm.getMessage().getTo();
         this.anonymousSender = sm.getMetadata().isAnonymousSender();
         this.body = sm.getMessage().getBody();
         this.date = sm.getMessage().getDate();
-        this.read = sm.getMetadata().isRead();
-        this.readDate = sm.getMetadata().getReadDate();
+        this.read = sm.getMetadata().getReadBy().contains(userId);
+        this.replyToMessageId = sm.getMessage().getReplyToMessageId();
     }
 
     public static StoredMessage toStoredMessage(MessageDTO message) {
         StoredMessage storedMessage = new StoredMessage();
         storedMessage.setId(message.getId());
-        storedMessage.setMessage(new Message(message.getFrom(), message.getTo(), message.getBody(), message.getDate()));
-        storedMessage.setMetadata(new Metadata(message.getFrom(), message.isAnonymousSender(), false, null));
+        storedMessage.setMessage(new Message(message.getFrom(), message.getTo(), message.getBody(), message.getDate(), message.getReplyToMessageId()));
+        storedMessage.setMetadata(new Metadata(message.getFrom(), message.isAnonymousSender()));
         return storedMessage;
     }
 
@@ -96,11 +96,11 @@ public class MessageDTO {
         this.read = read;
     }
 
-    public Date getReadDate() {
-        return readDate;
+    public String getReplyToMessageId() {
+        return replyToMessageId;
     }
 
-    public void setReadDate(Date readDate) {
-        this.readDate = readDate;
+    public void setReplyToMessageId(String replyToMessageId) {
+        this.replyToMessageId = replyToMessageId;
     }
 }

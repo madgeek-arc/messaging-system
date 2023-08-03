@@ -7,36 +7,36 @@ import reactor.core.publisher.Mono;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class UnreadMessages {
+public class UnreadThreads {
 
     private int totalUnread;
-    private List<GroupUnreadMessages> groups = new ArrayList<>();
+    private List<GroupUnread> groups = new ArrayList<>();
 
-    public UnreadMessages() {
+    public UnreadThreads() {
     }
 
-    public UnreadMessages(int totalUnread, List<GroupUnreadMessages> groups) {
+    public UnreadThreads(int totalUnread, List<GroupUnread> groups) {
         this.totalUnread = totalUnread;
         this.groups = groups;
     }
 
-    public static Mono<UnreadMessages> of(Collection<String> groups, Flux<ThreadDTO> threads) {
+    public static Mono<UnreadThreads> of(Collection<String> groups, Flux<ThreadDTO> threads) {
         Map<String, Integer> groupUnread = new TreeMap<>();
         return Mono.from(threads.map(thread -> {
 
-                    boolean unreadCount = thread.isUnread();
-
-                    for (Correspondent correspondent : thread.getTo()) {
-                        if (groups.contains(correspondent.getGroupId())) {
-                            groupUnread.putIfAbsent(correspondent.getGroupId(), 0);
-                            groupUnread.put(correspondent.getGroupId(), groupUnread.get(correspondent.getGroupId()) + 1);
+                    if (!thread.isRead()) {
+                        for (Correspondent correspondent : thread.getTo()) {
+                            if (groups.contains(correspondent.getGroupId())) {
+                                groupUnread.putIfAbsent(correspondent.getGroupId(), 0);
+                                groupUnread.put(correspondent.getGroupId(), groupUnread.get(correspondent.getGroupId()) + 1);
+                            }
                         }
                     }
                     return groupUnread;
                 })
                 .collect(TreeMap::new, Map::putAll)
                 .map(treeMap -> {
-                    UnreadMessages unread = new UnreadMessages();
+                    UnreadThreads unread = new UnreadThreads();
                     unread.setTotalUnread(treeMap
                             .values()
                             .stream()
@@ -49,7 +49,7 @@ public class UnreadMessages {
                             treeMap
                                     .entrySet()
                                     .stream()
-                                    .map(entry -> GroupUnreadMessages.of((String) entry.getKey(), (Integer) entry.getValue()))
+                                    .map(entry -> GroupUnread.of((String) entry.getKey(), (Integer) entry.getValue()))
                                     .filter(Objects::nonNull)
                                     .collect(Collectors.toList()));
                     return unread;
@@ -65,11 +65,11 @@ public class UnreadMessages {
         this.totalUnread = totalUnread;
     }
 
-    public List<GroupUnreadMessages> getGroups() {
+    public List<GroupUnread> getGroups() {
         return groups;
     }
 
-    public void setGroups(List<GroupUnreadMessages> groups) {
+    public void setGroups(List<GroupUnread> groups) {
         this.groups = groups;
     }
 }

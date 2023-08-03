@@ -1,6 +1,7 @@
 package gr.athenarc.messaging.dto;
 
 import gr.athenarc.messaging.domain.Correspondent;
+import gr.athenarc.messaging.domain.StoredMessage;
 import gr.athenarc.messaging.domain.TopicThread;
 
 import java.util.Date;
@@ -17,21 +18,21 @@ public class ThreadDTO {
     private List<MessageDTO> messages;
     private Date created;
     private Date updated;
-    private long unread;
+    private boolean read;
 
     public ThreadDTO() {
     }
 
-    public ThreadDTO(TopicThread thread) {
+    public ThreadDTO(TopicThread thread, String userId) {
         this.id = thread.getId();
         this.subject = thread.getSubject();
         this.tags = thread.getTags();
         this.from = thread.getFrom();
         this.to = thread.getTo();
-        this.messages = thread.getMessages().stream().map(MessageDTO::new).collect(Collectors.toList());
+        this.messages = thread.getMessages().stream().map(message -> new MessageDTO(message, userId)).collect(Collectors.toList());
         this.created = thread.getCreated();
         this.updated = thread.getUpdated();
-        this.unread = messages.stream().filter(m -> !m.isRead()).count();
+        this.read = !thread.getMessages().parallelStream().map(StoredMessage::getMetadata).anyMatch(m -> !m.getReadBy().contains(userId));
     }
 
     public static TopicThread toTopicThread(ThreadDTO thread) {
@@ -113,11 +114,11 @@ public class ThreadDTO {
         this.updated = updated;
     }
 
-    public long getUnread() {
-        return unread;
+    public boolean isRead() {
+        return read;
     }
 
-    public void setUnread(long unread) {
-        this.unread = unread;
+    public void setRead(boolean unread) {
+        this.read = unread;
     }
 }
