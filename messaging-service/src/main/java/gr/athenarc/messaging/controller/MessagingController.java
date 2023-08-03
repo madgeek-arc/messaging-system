@@ -13,16 +13,11 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static gr.athenarc.messaging.controller.RestApiPaths.THREADS;
 
@@ -69,7 +64,7 @@ public class MessagingController implements TopicThreadsController {
             @PathVariable String threadId,
             @RequestBody Message message,
             @RequestParam(defaultValue = "false") boolean anonymous/*,
-            *//*@Parameter(hidden = true)*//* @AuthenticationPrincipal Authentication authentication*/) {
+     *//*@Parameter(hidden = true)*//* @AuthenticationPrincipal Authentication authentication*/) {
         return topicThreadService.addMessage(threadId, message, anonymous).map(ThreadDTO::new);
     }
 
@@ -87,7 +82,7 @@ public class MessagingController implements TopicThreadsController {
     @Override
 //    @PreAuthorize("isAuthenticated()")
     public Mono<UnreadMessages> searchTotalUnread(@RequestParam List<String> groups) {
-        return Mono.just(UnreadMessages.of(groups, Objects.requireNonNull(topicThreadRepository.searchUnread(groups, PageRequest.of(0, 1_000_000)).toStream().collect(Collectors.toList()))));
+        return UnreadMessages.of(groups, topicThreadRepository.searchUnread(groups, PageRequest.of(0, 1_000_000)).map(ThreadDTO::new));
     }
 
     @Override
@@ -110,7 +105,7 @@ public class MessagingController implements TopicThreadsController {
             @RequestParam(defaultValue = "DESC") Sort.Direction direction,
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "10") Integer size/*,
-            *//*@Parameter(hidden = true) *//* Authentication authentication*/) {
+     *//*@Parameter(hidden = true) *//* Authentication authentication*/) {
 //        logger.info(authentication.toString());
         return topicThreadRepository.searchUnread(groups, PageRequest.of(page, size, Sort.by(direction, sortBy))).map(ThreadDTO::new);
     }
@@ -125,7 +120,7 @@ public class MessagingController implements TopicThreadsController {
             @RequestParam(defaultValue = "DESC") Sort.Direction direction,
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "10") Integer size/*,
-            *//*@Parameter(hidden = true)*//* @AuthenticationPrincipal Authentication authentication*/) {
+     *//*@Parameter(hidden = true)*//* @AuthenticationPrincipal Authentication authentication*/) {
 //        logger.info(authentication.toString());
         return topicThreadRepository.searchOutbox(groupId, regex, email, PageRequest.of(page, size, Sort.by(direction, sortBy))).map(ThreadDTO::new);
     }
