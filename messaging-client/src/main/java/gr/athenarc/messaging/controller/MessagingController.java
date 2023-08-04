@@ -22,14 +22,25 @@ public class MessagingController implements TopicThreadsController {
     }
 
     @Override
-    public Mono<ThreadDTO> get(String threadId, String email) {
+    public Mono<ThreadDTO> get(String threadId, String email, String groupId) {
         return this.webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path(RestApiPaths.THREADS_id)
                         .queryParam("email", email)
+                        .queryParam("groupId", groupId)
                         .build(threadId))
                 .exchangeToMono(body -> body.bodyToMono(ThreadDTO.class));
     }
+
+//    @Override
+//    public Mono<ThreadDTO> get(String threadId, String email) {
+//        return this.webClient.get()
+//                .uri(uriBuilder -> uriBuilder
+//                        .path(RestApiPaths.THREADS_id)
+//                        .queryParam("email", email)
+//                        .build(threadId))
+//                .exchangeToMono(body -> body.bodyToMono(ThreadDTO.class));
+//    }
 
     @Override
     public Mono<ThreadDTO> add(ThreadDTO thread) {

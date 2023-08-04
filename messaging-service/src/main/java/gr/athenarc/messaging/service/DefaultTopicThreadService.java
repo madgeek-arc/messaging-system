@@ -58,6 +58,11 @@ public class DefaultTopicThreadService implements TopicThreadService {
     }
 
     @Override
+    public Mono<TopicThread> getByIdAndUserEmailOrGroup(String threadId, String email, String groupId) {
+        return topicThreadRepository.findByIdAndUserOrGroup(threadId, email, groupId);
+    }
+
+    @Override
     public Flux<TopicThread> browse(Sort sort) {
         return topicThreadRepository.findAll(sort);
     }
@@ -68,7 +73,7 @@ public class DefaultTopicThreadService implements TopicThreadService {
     }
 
     @Override
-    public Mono<TopicThread> addMessage(String threadId, Message message, boolean anonymousSender) {
+    public synchronized Mono<TopicThread> addMessage(String threadId, Message message, boolean anonymousSender) {
         return topicThreadRepository.findById(threadId).flatMap(
                         topic -> {
                             StoredMessage storedMessage = StoredMessage.of(message, anonymousSender);
@@ -81,7 +86,7 @@ public class DefaultTopicThreadService implements TopicThreadService {
     }
 
     @Override
-    public Mono<TopicThread> readMessage(String threadId, String messageId, boolean read, String userId) {
+    public synchronized Mono<TopicThread> readMessage(String threadId, String messageId, boolean read, String userId) {
         return get(threadId).flatMap(thread -> {
             StoredMessage message = thread.getMessages().get(Integer.parseInt(messageId));
             if (read) {

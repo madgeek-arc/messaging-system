@@ -42,9 +42,14 @@ public class MessagingController implements TopicThreadsController {
     }
 
     @Override
-    public Mono<ThreadDTO> get(@PathVariable String threadId, @RequestParam String email) {
-        return topicThreadService.get(threadId).map(thread -> new ThreadDTO(thread, email));
+    public Mono<ThreadDTO> get(String threadId, String email, String groupId) {
+        return topicThreadService.getByIdAndUserEmailOrGroup(threadId, email, groupId).map(thread -> new ThreadDTO(thread, email));
     }
+
+//    @Override
+//    public Mono<ThreadDTO> get(@PathVariable String threadId, @RequestParam String email) {
+//        return topicThreadService.get(threadId).map(thread -> new ThreadDTO(thread, email));
+//    }
 
     // TODO: uncomment method for authenticated users ?
     @Override

@@ -20,7 +20,8 @@ public interface TopicThreadsController {
 
     @GetMapping(THREADS_id)
     Mono<ThreadDTO> get(@PathVariable String threadId,
-                        @RequestParam(defaultValue = "") String email);
+                        @RequestParam(defaultValue = "") String email,
+                        @RequestParam(defaultValue = "") String groupId);
 
     @PostMapping(THREADS)
     Mono<ThreadDTO> add(@RequestBody ThreadDTO thread);

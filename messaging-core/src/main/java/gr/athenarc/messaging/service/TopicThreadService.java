@@ -9,6 +9,8 @@ import reactor.core.publisher.Mono;
 
 public interface TopicThreadService extends CrudOperations<TopicThread, String> {
 
+    Mono<TopicThread> getByIdAndUserEmailOrGroup(String threadId, String email, String groupId);
+
     Flux<TopicThread> browse(Sort sort);
 
     Flux<TopicThread> browse(Example<TopicThread> example, Sort sort);

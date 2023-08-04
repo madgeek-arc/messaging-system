@@ -3,6 +3,7 @@ package gr.athenarc.messaging.repository;
 import gr.athenarc.messaging.domain.TopicThread;
 import org.springframework.data.domain.Pageable;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -14,7 +15,9 @@ public interface ReactiveTopicThreadRepository {
 
     Flux<TopicThread> findAllBySubjectContainingIgnoreCase(String subject, Pageable pageable);
 
-    Flux<Object> findAllUsingQuery(String regex, Pageable pageable);
+    Mono<TopicThread> findByIdAndUserOrGroup(String threadId, String email, String groupId);
+
+    Flux<TopicThread> findAllUsingQuery(String regex, Pageable pageable);
 
     Flux<TopicThread> searchInbox(String groupId, String regex, String email, Pageable pageable);
 
