@@ -36,6 +36,6 @@ public interface ReactiveMongoTopicThreadRepository extends ReactiveMongoReposit
     Flux<TopicThread> searchOutbox(String groupId, String regex, String email, Pageable pageable);
 
     @Override
-    @Query(value = "{ '$and': [ {'messages.message.to.groupId': { '$in': ?0 }}, {'messages.message.readBy': ?1} ] }")
+    @Query(value = "{ '$and': [ {'messages.message.to.groupId': { '$in': ?0 }}, {'messages.message.readBy': {'$nin':  [?1] }} ] }")
     Flux<TopicThread> searchUnread(List<String> groups, String email, Pageable pageable);
 }
