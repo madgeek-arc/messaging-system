@@ -6,16 +6,11 @@ import gr.athenarc.messaging.domain.TopicThread;
 import gr.athenarc.messaging.dto.ThreadDTO;
 import gr.athenarc.messaging.dto.UnreadThreads;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.codec.ServerSentEvent;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
-import java.time.Duration;
 import java.util.List;
 
 public class MessagingController implements TopicThreadsController {
@@ -36,16 +31,6 @@ public class MessagingController implements TopicThreadsController {
                         .build(threadId))
                 .exchangeToMono(body -> body.bodyToMono(ThreadDTO.class));
     }
-
-//    @Override
-//    public Mono<ThreadDTO> get(String threadId, String email) {
-//        return this.webClient.get()
-//                .uri(uriBuilder -> uriBuilder
-//                        .path(RestApiPaths.THREADS_id)
-//                        .queryParam("email", email)
-//                        .build(threadId))
-//                .exchangeToMono(body -> body.bodyToMono(ThreadDTO.class));
-//    }
 
     @Override
     public Mono<ThreadDTO> add(ThreadDTO thread) {
@@ -68,17 +53,6 @@ public class MessagingController implements TopicThreadsController {
         return this.webClient.delete()
                 .uri(RestApiPaths.THREADS_id, threadId)
                 .exchangeToMono(body -> body.bodyToMono(Void.class));
-    }
-
-    @GetMapping("stream/" + RestApiPaths.INBOX_TOTAL_UNREAD)
-    public Flux<ServerSentEvent<UnreadThreads>> streamUnreadThreads(@RequestParam(defaultValue = "") List<String> groups, @RequestParam String email) {
-        return Flux.interval(Duration.ofSeconds(10))
-                .publishOn(Schedulers.boundedElastic())
-                .map(sequence -> ServerSentEvent.<UnreadThreads>builder()
-                        .id(String.valueOf(sequence))
-                        .event("unread-threads")
-                        .data(this.getUnreadThreads(groups, email).block())
-                        .build());
     }
 
     @Override
