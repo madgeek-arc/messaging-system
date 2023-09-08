@@ -72,4 +72,17 @@ public class UnreadThreads {
     public void setGroups(List<GroupUnread> groups) {
         this.groups = groups;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UnreadThreads that = (UnreadThreads) o;
+        return totalUnread == that.totalUnread && Objects.equals(groups, that.groups);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(totalUnread, groups);
+    }
 }

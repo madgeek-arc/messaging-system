@@ -1,5 +1,7 @@
 package gr.athenarc.messaging.dto;
 
+import java.util.Objects;
+
 public class GroupUnread {
 
     private String groupId;
@@ -37,5 +39,18 @@ public class GroupUnread {
 
     public void setUnread(int unread) {
         this.unread = unread;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GroupUnread that = (GroupUnread) o;
+        return unread == that.unread && Objects.equals(groupId, that.groupId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(groupId, unread);
     }
 }
