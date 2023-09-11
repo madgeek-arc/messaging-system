@@ -36,6 +36,12 @@ public interface TopicThreadsController {
     Mono<UnreadThreads> searchUnreadThreads(@RequestParam List<String> groups,
                                             @RequestParam(defaultValue = "") String email);
 
+    @GetMapping(INBOX_THREADS_COUNT)
+    Mono<Integer> countInbox(
+            @RequestParam String groupId,
+            @RequestParam(defaultValue = "") String regex,
+            @RequestParam String email);
+
     @GetMapping(INBOX_THREADS_SEARCH)
     Flux<ThreadDTO> searchInbox(
             @RequestParam String groupId,
@@ -55,6 +61,12 @@ public interface TopicThreadsController {
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "10") Integer size/*,
             Authentication authentication*/);
+
+    @GetMapping(OUTBOX_THREADS_COUNT)
+    Mono<Integer> countOutbox(
+            @RequestParam String groupId,
+            @RequestParam(defaultValue = "") String regex,
+            @RequestParam String email);
 
     @GetMapping(OUTBOX_THREADS_SEARCH)
     Flux<ThreadDTO> searchOutbox(

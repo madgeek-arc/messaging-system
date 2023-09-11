@@ -3,16 +3,18 @@ package gr.athenarc.messaging.service;
 import gr.athenarc.messaging.domain.Message;
 import gr.athenarc.messaging.domain.StoredMessage;
 import gr.athenarc.messaging.domain.TopicThread;
+import gr.athenarc.messaging.dto.ThreadDTO;
 import gr.athenarc.messaging.repository.ReactiveMongoTopicThreadRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Date;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class DefaultTopicThreadService implements TopicThreadService {
@@ -98,5 +100,13 @@ public class DefaultTopicThreadService implements TopicThreadService {
         });
     }
 
-
+    @Override
+    public Mono<Page<ThreadDTO>> getInbox(String groupId, String regex, String email, Pageable pageable) {
+        return topicThreadRepository.searchInbox(groupId, regex, email, pageable)
+                .filter(Objects::nonNull)
+                .map(topic -> new ThreadDTO(topic, email))
+                .collectList()
+                .zipWith(topicThreadRepository.countInbox(groupId, regex, email))
+                .map(p -> new PageImpl<>(p.getT1(), pageable, p.getT2()));
+    }
 }

@@ -61,6 +61,19 @@ public class MessagingController implements TopicThreadsController {
     }
 
     @Override
+    public Mono<Integer> countInbox(String groupId, String regex, String email) {
+        return this.webClient.get()
+                .uri(uriBuilder ->
+                        uriBuilder
+                                .path(RestApiPaths.INBOX_THREADS_COUNT)
+                                .queryParam("groupId", groupId)
+                                .queryParam("regex", regex)
+                                .queryParam("email", email)
+                                .build())
+                .exchangeToMono(body -> body.bodyToMono(Integer.class));
+    }
+
+    @Override
     public Flux<ThreadDTO> searchInbox(String groupId, String regex, String email, String sortBy, Sort.Direction direction, Integer page, Integer size) {
         return this.webClient.get()
                 .uri(uriBuilder ->
@@ -92,6 +105,19 @@ public class MessagingController implements TopicThreadsController {
 //                                .queryParam("authentication", authentication)
                                 .build())
                 .exchangeToFlux(body -> body.bodyToFlux(ThreadDTO.class));
+    }
+
+    @Override
+    public Mono<Integer> countOutbox(String groupId, String regex, String email) {
+        return this.webClient.get()
+                .uri(uriBuilder ->
+                        uriBuilder
+                                .path(RestApiPaths.OUTBOX_THREADS_COUNT)
+                                .queryParam("groupId", groupId)
+                                .queryParam("regex", regex)
+                                .queryParam("email", email)
+                                .build())
+                .exchangeToMono(body -> body.bodyToMono(Integer.class));
     }
 
     @Override

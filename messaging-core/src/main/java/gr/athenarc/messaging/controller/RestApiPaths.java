@@ -5,8 +5,10 @@ public class RestApiPaths {
     public static final String THREADS = "threads";
     public static final String THREADS_id = THREADS + "/{threadId}";
     public static final String INBOX_TOTAL_UNREAD = "inbox/unread";
+    public static final String INBOX_THREADS_COUNT = "inbox/threads/count";
     public static final String INBOX_THREADS_SEARCH = "inbox/threads/search";
     public static final String INBOX_THREADS_UNREAD = "inbox/threads/unread";
+    public static final String OUTBOX_THREADS_COUNT = "outbox/threads/count";
     public static final String OUTBOX_THREADS_SEARCH = "outbox/threads/search";
     public static final String THREADS_INTERNAL = THREADS + "/internal";
     public static final String THREADS_PUT_ID = THREADS + "/{threadId}";

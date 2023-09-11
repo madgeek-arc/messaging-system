@@ -93,6 +93,15 @@ public class MessagingController implements TopicThreadsController {
     }
 
     @Override
+    public Mono<Integer> countInbox(
+            @RequestParam String groupId,
+            @RequestParam(defaultValue = "") String regex,
+            @RequestParam String email) {
+        return topicThreadRepository.countInbox(groupId, regex, email);
+//        return topicThreadService.get(threadId).map(thread -> new ThreadDTO(thread, email));
+    }
+
+    @Override
 //    @PreAuthorize("isAuthenticated()")
     public Flux<ThreadDTO> searchInbox(
             @RequestParam String groupId,
@@ -106,6 +115,22 @@ public class MessagingController implements TopicThreadsController {
                 .filter(Objects::nonNull)
                 .map(topic -> new ThreadDTO(topic, email));
     }
+
+//    @Override
+////    @PreAuthorize("isAuthenticated()")
+//    public Mono<Page<ThreadDTO>> searchInbox(
+//            @RequestParam String groupId,
+//            @RequestParam(defaultValue = "") String regex,
+//            @RequestParam String email,
+//            @RequestParam(defaultValue = "created") String sortBy,
+//            @RequestParam(defaultValue = "DESC") Sort.Direction direction,
+//            @RequestParam(defaultValue = "0") Integer page,
+//            @RequestParam(defaultValue = "10") Integer size) {
+////        return topicThreadRepository.searchInbox(groupId, regex, email, PageRequest.of(page, size, Sort.by(direction, sortBy)))
+////                .filter(Objects::nonNull)
+////                .map(topic -> new ThreadDTO(topic, email));
+//        return topicThreadService.getInbox(groupId, regex, email, PageRequest.of(page, size, Sort.by(direction, sortBy)));
+//    }
 
     @Override
 //    @PreAuthorize("isAuthenticated()")
@@ -121,6 +146,15 @@ public class MessagingController implements TopicThreadsController {
         return topicThreadRepository.searchUnread(groups, email, PageRequest.of(page, size, Sort.by(direction, sortBy)))
                 .filter(Objects::nonNull)
                 .map(topic -> new ThreadDTO(topic, email));
+    }
+
+    @Override
+    public Mono<Integer> countOutbox(
+            @RequestParam String groupId,
+            @RequestParam(defaultValue = "") String regex,
+            @RequestParam String email) {
+        return topicThreadRepository.countOutbox(groupId, regex, email);
+//        return topicThreadService.get(threadId).map(thread -> new ThreadDTO(thread, email));
     }
 
     @Override
