@@ -26,4 +26,27 @@
             <!-- TODO: add common dependencies -->
         </dependencies>
     </dependencyManagement>
+
+    <scm>
+        <connection>scm:git:git@github.com:madgeek-arc/messaging-system.git</connection>
+        <developerConnection>scm:git:git@github.com:madgeek-arc/messaging-system.git</developerConnection>
+        <url>https://github.com/madgeek-arc/messaging-system.git</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <distributionManagement>
+        <repository>
+            <uniqueVersion>true</uniqueVersion>
+            <id>omtd-releases</id>
+            <layout>default</layout>
+            <url>https://repo.openminted.eu/content/repositories/releases</url>
+        </repository>
+        <snapshotRepository>
+            <uniqueVersion>true</uniqueVersion>
+            <id>omtd-snapshots</id>
+            <layout>default</layout>
+            <url>https://repo.openminted.eu/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
 </project>
