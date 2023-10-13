@@ -4,7 +4,7 @@
 
     <groupId>gr.athenarc</groupId>
     <artifactId>messaging</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2-SNAPSHOT</version>
     <name>Messaging System</name>
     <packaging>pom</packaging>
 
@@ -30,7 +30,7 @@
         <connection>scm:git:git@github.com:madgeek-arc/messaging-system.git</connection>
         <developerConnection>scm:git:git@github.com:madgeek-arc/messaging-system.git</developerConnection>
         <url>https://github.com/madgeek-arc/messaging-system.git</url>
-        <tag>messaging-0.0.1</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <distributionManagement>

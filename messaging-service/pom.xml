@@ -10,7 +10,7 @@
 
     <groupId>gr.athenarc</groupId>
     <artifactId>messaging-service</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2-SNAPSHOT</version>
     <name>Messaging System Service</name>
     <description>For communication.</description>
 
@@ -128,9 +128,4 @@
             </plugin>
         </plugins>
     </build>
-
-
-  <scm>
-    <tag>messaging-0.0.1</tag>
-  </scm>
 </project>

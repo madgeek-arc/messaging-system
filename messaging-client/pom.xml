@@ -10,7 +10,7 @@
 
     <groupId>gr.athenarc</groupId>
     <artifactId>messaging-client</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2-SNAPSHOT</version>
     <name>Messaging System Client</name>
     <description>Provides api for communicating with the messaging service.</description>
 
@@ -57,9 +57,4 @@
             </plugin>
         </plugins>
     </build>
-
-
-  <scm>
-    <tag>messaging-0.0.1</tag>
-  </scm>
 </project>
