@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 
+@Deprecated
 @RestController
 @RequestMapping
 public class GroupsController {

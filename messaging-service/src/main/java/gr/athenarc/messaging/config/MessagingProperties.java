@@ -3,6 +3,7 @@ package gr.athenarc.messaging.config;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+@Deprecated
 @Component
 @ConfigurationProperties(prefix = "messaging")
 public class MessagingProperties {

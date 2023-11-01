@@ -8,6 +8,7 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 import java.util.Map;
 
+@Deprecated
 @Service
 public class GroupService {
 
