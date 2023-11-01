@@ -13,14 +13,15 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Objects;
-
-import static gr.athenarc.messaging.controller.RestApiPaths.THREADS;
 
 @RestController
 public class MessagingController implements TopicThreadsController {
@@ -36,22 +37,13 @@ public class MessagingController implements TopicThreadsController {
         this.topicThreadService = topicThreadService;
     }
 
-    @PostMapping(THREADS + "/public")
-    public Mono<ThreadDTO> addExternal(@RequestHeader("g-recaptcha-response") String recaptcha, @RequestBody ThreadDTO thread) {
-        return topicThreadService.add(ThreadDTO.toTopicThread(thread)).map(t -> new ThreadDTO(t, thread.getFrom().getEmail()));
-    }
+    // TODO: create property enabling/disabling authentication checks on controller methods ?
 
     @Override
     public Mono<ThreadDTO> get(String threadId, String email, String groupId) {
         return topicThreadService.getByIdAndUserEmailOrGroup(threadId, email, groupId).map(thread -> new ThreadDTO(thread, email));
     }
 
-//    @Override
-//    public Mono<ThreadDTO> get(@PathVariable String threadId, @RequestParam String email) {
-//        return topicThreadService.get(threadId).map(thread -> new ThreadDTO(thread, email));
-//    }
-
-    // TODO: uncomment method for authenticated users ?
     @Override
 //    @PreAuthorize("isAuthenticated()")
     public Mono<ThreadDTO> add(@RequestBody ThreadDTO thread) {
@@ -115,22 +107,6 @@ public class MessagingController implements TopicThreadsController {
                 .filter(Objects::nonNull)
                 .map(topic -> new ThreadDTO(topic, email));
     }
-
-//    @Override
-////    @PreAuthorize("isAuthenticated()")
-//    public Mono<Page<ThreadDTO>> searchInbox(
-//            @RequestParam String groupId,
-//            @RequestParam(defaultValue = "") String regex,
-//            @RequestParam String email,
-//            @RequestParam(defaultValue = "created") String sortBy,
-//            @RequestParam(defaultValue = "DESC") Sort.Direction direction,
-//            @RequestParam(defaultValue = "0") Integer page,
-//            @RequestParam(defaultValue = "10") Integer size) {
-////        return topicThreadRepository.searchInbox(groupId, regex, email, PageRequest.of(page, size, Sort.by(direction, sortBy)))
-////                .filter(Objects::nonNull)
-////                .map(topic -> new ThreadDTO(topic, email));
-//        return topicThreadService.getInbox(groupId, regex, email, PageRequest.of(page, size, Sort.by(direction, sortBy)));
-//    }
 
     @Override
 //    @PreAuthorize("isAuthenticated()")
