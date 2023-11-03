@@ -18,12 +18,12 @@ public class SecurityConfig {
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         http
-                .headers()
-                .xssProtection().disable();
+                .headers(headers -> headers
+                        .xssProtection(ServerHttpSecurity.HeaderSpec.XssProtectionSpec::disable));
 
         http
-                .cors().disable()
-                .csrf().disable()
+                .cors(ServerHttpSecurity.CorsSpec::disable)
+                .csrf(ServerHttpSecurity.CsrfSpec::disable)
 
                 .authorizeExchange(authorize -> authorize
                         .anyExchange().permitAll()
