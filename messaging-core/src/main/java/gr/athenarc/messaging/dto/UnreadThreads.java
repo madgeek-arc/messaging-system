@@ -25,7 +25,8 @@ public class UnreadThreads {
         return Mono.from(threads.map(thread -> {
 
                     if (!thread.isRead()) {
-                        for (Correspondent correspondent : thread.getTo()) {
+                        // increase unread count for each correspondent (group) of the thread's last message
+                        for (Correspondent correspondent : thread.getMessages().get(thread.getMessages().size()-1).getTo()) {
                             if (groups.contains(correspondent.getGroupId())) {
                                 groupUnread.putIfAbsent(correspondent.getGroupId(), 0);
                                 groupUnread.put(correspondent.getGroupId(), groupUnread.get(correspondent.getGroupId()) + 1);
