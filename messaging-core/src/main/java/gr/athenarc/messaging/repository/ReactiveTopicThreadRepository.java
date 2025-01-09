@@ -24,4 +24,6 @@ public interface ReactiveTopicThreadRepository {
     Flux<TopicThread> searchOutbox(String groupId, String regex, String email, Pageable pageable);
 
     Flux<TopicThread> searchUnread(List<String> groups, String email, Pageable pageable);
+
+    Flux<TopicThread> searchUser(String email);
 }

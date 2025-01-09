@@ -47,4 +47,8 @@ public interface ReactiveMongoTopicThreadRepository extends ReactiveMongoReposit
     @Override
     @Query(value = "{ '$and': [ {'messages.message.to.groupId': { '$in': ?0 }}, {'messages.message.readBy': {'$nin':  [?1] }} ] }")
     Flux<TopicThread> searchUnread(List<String> groups, String email, Pageable pageable);
+
+
+    @Query(value = "{ '$or': [ { 'from.email': ?0 }, { 'messages.message.from.email': ?0 }, { 'to.email': ?0 }, { 'messages.message.to.email': ?0 } ] }")
+    Flux<TopicThread> searchUser(String email);
 }
