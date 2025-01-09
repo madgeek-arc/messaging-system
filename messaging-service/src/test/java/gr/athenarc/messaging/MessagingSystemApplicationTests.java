@@ -1,5 +1,6 @@
 package gr.athenarc.messaging;
 
+import gr.athenarc.messaging.config.MessagingServiceConfig;
 import gr.athenarc.messaging.domain.Correspondent;
 import gr.athenarc.messaging.domain.TopicThread;
 import org.junit.jupiter.api.Test;
@@ -8,7 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.Date;
 import java.util.List;
 
-@SpringBootTest
+@SpringBootTest(classes = MessagingServiceConfig.class)
 class MessagingSystemApplicationTests {
 
     @Test
