@@ -78,4 +78,15 @@ public interface ThreadOperations {
             boolean read,
             String userId);
 
+    /**
+     * Erases the given user's personal data from every thread they appear in, replacing their name
+     * and email with a placeholder and dropping their read receipts. Message bodies and subjects
+     * are left intact. Idempotent: a repeat call on an already erased user reports 0.
+     *
+     * @param email the email of the user to erase
+     * @return the number of threads modified
+     */
+    Mono<Integer> anonymizeUser(
+            String email);
+
 }

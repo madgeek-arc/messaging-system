@@ -14,6 +14,8 @@ public class RestApiPaths {
     public static final String THREADS_PUT_ID = THREADS + "/{threadId}";
     public static final String THREADS_id_MESSAGES = THREADS + "/{threadId}/messages";
     public static final String THREADS_id_MESSAGES_id = THREADS + "/{threadId}/messages/{messageId}";
+    public static final String USER = "user";
+    public static final String USER_ANONYMIZE = USER + "/anonymize";
 
 
     public static final String THREADS_FROM = THREADS + "/from";

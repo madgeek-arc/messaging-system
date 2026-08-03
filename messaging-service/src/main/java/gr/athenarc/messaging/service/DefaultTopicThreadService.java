@@ -4,6 +4,7 @@ import gr.athenarc.messaging.domain.Message;
 import gr.athenarc.messaging.domain.StoredMessage;
 import gr.athenarc.messaging.domain.TopicThread;
 import gr.athenarc.messaging.dto.ThreadDTO;
+import gr.athenarc.messaging.privacy.PersonalDataEraser;
 import gr.athenarc.messaging.repository.ReactiveMongoTopicThreadRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +15,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Date;
 import java.util.Objects;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -108,5 +110,26 @@ public class DefaultTopicThreadService implements TopicThreadService {
                 .collectList()
                 .zipWith(topicThreadRepository.countInbox(groupId, regex, email))
                 .map(p -> new PageImpl<>(p.getT1(), pageable, p.getT2()));
+    }
+
+    /**
+     * Threads whose personal data is already erased are filtered out before the save, so a repeat
+     * call is a no-op that reports 0. The 'updated' timestamp is deliberately not touched: every
+     * inbox query sorts by it, and bumping it would float a purged user's oldest threads back to
+     * the top of everyone else's inbox.
+     */
+    @Override
+    public Mono<Integer> anonymizeUser(String email) {
+        // Anchored and quoted so that the '.' and '+' that are commonplace in email addresses are
+        // matched literally rather than as regex metacharacters.
+        String emailRegex = "^" + Pattern.quote(email) + "$";
+        return topicThreadRepository.findAllByCorrespondentEmail(emailRegex)
+                .filter(thread -> PersonalDataEraser.anonymize(thread, email))
+                .flatMap(topicThreadRepository::save)
+                .count()
+                .map(Long::intValue)
+                // Deliberately omits the email: logging the identifier being erased would itself
+                // retain the personal data this method exists to remove.
+                .doOnSuccess(count -> logger.info("Erased personal data from {} thread(s).", count));
     }
 }

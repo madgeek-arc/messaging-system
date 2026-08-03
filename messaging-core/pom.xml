@@ -10,7 +10,7 @@
 
     <groupId>gr.athenarc</groupId>
     <artifactId>messaging-core</artifactId>
-    <version>0.0.2-SNAPSHOT</version>
+    <version>0.1.0-SNAPSHOT</version>
     <name>Messaging System Core</name>
     <description>For communication.</description>
 

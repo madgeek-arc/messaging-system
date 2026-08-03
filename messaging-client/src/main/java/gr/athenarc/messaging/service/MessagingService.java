@@ -4,6 +4,7 @@ import gr.athenarc.messaging.config.MessagingClientProperties;
 import gr.athenarc.messaging.controller.RestApiPaths;
 import gr.athenarc.messaging.domain.Message;
 import gr.athenarc.messaging.domain.TopicThread;
+import gr.athenarc.messaging.dto.AnonymizeUserRequest;
 import gr.athenarc.messaging.dto.ThreadDTO;
 import gr.athenarc.messaging.dto.UnreadThreads;
 import org.springframework.data.domain.Sort;
@@ -161,6 +162,14 @@ public class MessagingService implements ThreadOperations {
                                 .build(threadId, messageId)
                 )
                 .exchangeToMono(body -> body.bodyToMono(ThreadDTO.class));
+    }
+
+    @Override
+    public Mono<Integer> anonymizeUser(String email) {
+        return this.webClient.post()
+                .uri(RestApiPaths.USER_ANONYMIZE)
+                .body(BodyInserters.fromValue(new AnonymizeUserRequest(email)))
+                .exchangeToMono(body -> body.bodyToMono(Integer.class));
     }
 
     private Mono<UnreadThreads> getUnreadThreads(List<String> groups, String email) {

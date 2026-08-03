@@ -51,4 +51,14 @@ public interface ReactiveMongoTopicThreadRepository extends ReactiveMongoReposit
 
     @Query(value = "{ '$or': [ { 'from.email': ?0 }, { 'messages.message.from.email': ?0 }, { 'to.email': ?0 }, { 'messages.message.to.email': ?0 } ] }")
     Flux<TopicThread> searchUser(String email);
+
+    @Override
+    @Query(value = "{ '$or': [ " +
+            "{'from.email': {'$regex': ?0, '$options': 'i'}}, " +
+            "{'to.email': {'$regex': ?0, '$options': 'i'}}, " +
+            "{'messages.message.from.email': {'$regex': ?0, '$options': 'i'}}, " +
+            "{'messages.message.to.email': {'$regex': ?0, '$options': 'i'}}, " +
+            "{'messages.metadata.sentBy.email': {'$regex': ?0, '$options': 'i'}}, " +
+            "{'messages.metadata.readBy': {'$regex': ?0, '$options': 'i'}} ] }")
+    Flux<TopicThread> findAllByCorrespondentEmail(String emailRegex);
 }

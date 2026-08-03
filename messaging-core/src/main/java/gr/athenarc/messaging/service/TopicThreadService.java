@@ -24,4 +24,6 @@ public interface TopicThreadService extends CrudOperations<TopicThread, String> 
 
     Mono<Page<ThreadDTO>> getInbox(String groupId, String regex, String email, Pageable pageable);
 
+    Mono<Integer> anonymizeUser(String email);
+
 }

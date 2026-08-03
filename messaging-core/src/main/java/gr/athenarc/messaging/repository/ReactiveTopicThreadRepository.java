@@ -26,4 +26,14 @@ public interface ReactiveTopicThreadRepository {
     Flux<TopicThread> searchUnread(List<String> groups, String email, Pageable pageable);
 
     Flux<TopicThread> searchUser(String email);
+
+    /**
+     * Finds every thread in which the given user appears in any capacity: as thread or message
+     * sender or recipient, as the sender recorded in a message's metadata, or merely as a read
+     * receipt. Deliberately wider than {@link #searchUser(String)}, which does not look at
+     * message metadata - erasure has to reach every last trace.
+     *
+     * @param emailRegex an anchored regular expression matching the user's email
+     */
+    Flux<TopicThread> findAllByCorrespondentEmail(String emailRegex);
 }

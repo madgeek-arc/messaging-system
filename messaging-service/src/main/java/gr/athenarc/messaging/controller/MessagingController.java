@@ -3,6 +3,7 @@ package gr.athenarc.messaging.controller;
 import gr.athenarc.messaging.domain.Correspondent;
 import gr.athenarc.messaging.domain.Message;
 import gr.athenarc.messaging.domain.TopicThread;
+import gr.athenarc.messaging.dto.AnonymizeUserRequest;
 import gr.athenarc.messaging.dto.ThreadDTO;
 import gr.athenarc.messaging.dto.UnreadThreads;
 import gr.athenarc.messaging.repository.ReactiveMongoTopicThreadRepository;
@@ -13,7 +14,9 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -220,9 +223,35 @@ public class MessagingController implements TopicThreadsController {
     }
 
 
-    @GetMapping("user")
+    @GetMapping(RestApiPaths.USER)
     public Flux<?> searchUser(@RequestParam String email) {
         return topicThreadRepository.searchUser(email);
+    }
+
+    /**
+     * Erases a user's personal data from every thread they appear in (GDPR right to erasure).
+     * Their name and email are replaced with a placeholder in all correspondent slots and their
+     * read receipts are dropped; subjects and message bodies, written by third parties, survive.
+     * Idempotent by design - re-running it reports 0 threads modified.
+     * <p>
+     * A POST carrying the email in the body rather than a DELETE carrying it in the query string:
+     * query parameters are captured by reverse proxy access logs, so the address being erased would
+     * leak into exactly the kind of durable storage this endpoint exists to clear.
+     * <p>
+     * Deliberately declared here rather than on {@link TopicThreadsController}: that interface is
+     * annotated {@code @RestController} and is implemented by the client library, so a mapping
+     * placed there would be re-exposed on every consumer's own API.
+     *
+     * @return the number of threads modified
+     */
+    @PostMapping(RestApiPaths.USER_ANONYMIZE)
+    public Mono<Integer> anonymizeUser(@RequestBody AnonymizeUserRequest request) {
+        if (request == null || request.getEmail() == null || request.getEmail().isBlank()) {
+            // Reported rather than swallowed: a caller must never read "0 threads modified" as
+            // confirmation that an erasure it never actually requested has taken place.
+            return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "email is required"));
+        }
+        return topicThreadService.anonymizeUser(request.getEmail());
     }
 
 
