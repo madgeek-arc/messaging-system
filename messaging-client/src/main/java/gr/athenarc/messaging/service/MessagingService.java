@@ -15,6 +15,15 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
+/**
+ * Calls the messaging service over HTTP.
+ * <p>
+ * Every method uses {@code retrieve()} rather than {@code exchangeToMono}/{@code exchangeToFlux},
+ * so a 4xx/5xx response raises {@link org.springframework.web.reactive.function.client.WebClientResponseException}
+ * carrying the status and body. Decoding an error response into the success type instead would
+ * either fail with an opaque decoding error, yield a hollow object when the error body happens to
+ * deserialize, or complete empty and surface as a NullPointerException in the caller.
+ */
 public class MessagingService implements ThreadOperations {
 
     private final WebClient webClient;
@@ -31,7 +40,8 @@ public class MessagingService implements ThreadOperations {
                         .queryParam("email", email)
                         .queryParam("groupId", groupId)
                         .build(threadId))
-                .exchangeToMono(body -> body.bodyToMono(ThreadDTO.class));
+                .retrieve()
+                .bodyToMono(ThreadDTO.class);
     }
 
     @Override
@@ -39,7 +49,8 @@ public class MessagingService implements ThreadOperations {
         return this.webClient.post()
                 .uri(RestApiPaths.THREADS)
                 .body(BodyInserters.fromValue(thread))
-                .exchangeToMono(body -> body.bodyToMono(ThreadDTO.class));
+                .retrieve()
+                .bodyToMono(ThreadDTO.class);
     }
 
     @Override
@@ -47,14 +58,16 @@ public class MessagingService implements ThreadOperations {
         return this.webClient.put()
                 .uri(RestApiPaths.THREADS_id, threadId)
                 .body(BodyInserters.fromValue(topicThread))
-                .exchangeToMono(body -> body.bodyToMono(ThreadDTO.class));
+                .retrieve()
+                .bodyToMono(ThreadDTO.class);
     }
 
     @Override
     public Mono<Void> delete(String threadId) {
         return this.webClient.delete()
                 .uri(RestApiPaths.THREADS_id, threadId)
-                .exchangeToMono(body -> body.bodyToMono(Void.class));
+                .retrieve()
+                .bodyToMono(Void.class);
     }
 
     @Override
@@ -72,7 +85,8 @@ public class MessagingService implements ThreadOperations {
                                 .queryParam("regex", regex)
                                 .queryParam("email", email)
                                 .build())
-                .exchangeToMono(body -> body.bodyToMono(Integer.class));
+                .retrieve()
+                .bodyToMono(Integer.class);
     }
 
     @Override
@@ -89,7 +103,8 @@ public class MessagingService implements ThreadOperations {
                                 .queryParam("page", page)
                                 .queryParam("size", size)
                                 .build())
-                .exchangeToFlux(body -> body.bodyToFlux(ThreadDTO.class));
+                .retrieve()
+                .bodyToFlux(ThreadDTO.class);
     }
 
     @Override
@@ -106,7 +121,8 @@ public class MessagingService implements ThreadOperations {
                                 .queryParam("size", size)
 //                                .queryParam("authentication", authentication)
                                 .build())
-                .exchangeToFlux(body -> body.bodyToFlux(ThreadDTO.class));
+                .retrieve()
+                .bodyToFlux(ThreadDTO.class);
     }
 
     @Override
@@ -119,7 +135,8 @@ public class MessagingService implements ThreadOperations {
                                 .queryParam("regex", regex)
                                 .queryParam("email", email)
                                 .build())
-                .exchangeToMono(body -> body.bodyToMono(Integer.class));
+                .retrieve()
+                .bodyToMono(Integer.class);
     }
 
     @Override
@@ -137,7 +154,8 @@ public class MessagingService implements ThreadOperations {
                                 .queryParam("size", size)
 //                                .queryParam("authentication", authentication)
                                 .build())
-                .exchangeToFlux(body -> body.bodyToFlux(ThreadDTO.class));
+                .retrieve()
+                .bodyToFlux(ThreadDTO.class);
     }
 
     @Override
@@ -148,7 +166,8 @@ public class MessagingService implements ThreadOperations {
                         .queryParam("anonymous", anonymous)
                         .build(threadId))
                 .body(BodyInserters.fromValue(message))
-                .exchangeToMono(body -> body.bodyToMono(ThreadDTO.class));
+                .retrieve()
+                .bodyToMono(ThreadDTO.class);
     }
 
     @Override
@@ -161,7 +180,8 @@ public class MessagingService implements ThreadOperations {
                                 .queryParam("userId", userId)
                                 .build(threadId, messageId)
                 )
-                .exchangeToMono(body -> body.bodyToMono(ThreadDTO.class));
+                .retrieve()
+                .bodyToMono(ThreadDTO.class);
     }
 
     @Override
@@ -169,7 +189,8 @@ public class MessagingService implements ThreadOperations {
         return this.webClient.post()
                 .uri(RestApiPaths.USER_ANONYMIZE)
                 .body(BodyInserters.fromValue(new AnonymizeUserRequest(email)))
-                .exchangeToMono(body -> body.bodyToMono(Integer.class));
+                .retrieve()
+                .bodyToMono(Integer.class);
     }
 
     private Mono<UnreadThreads> getUnreadThreads(List<String> groups, String email) {
@@ -178,7 +199,8 @@ public class MessagingService implements ThreadOperations {
                         .queryParam("groups", groups)
                         .queryParam("email", email)
                         .build())
-                .exchangeToMono(body -> body.bodyToMono(UnreadThreads.class));
+                .retrieve()
+                .bodyToMono(UnreadThreads.class);
     }
 
 }

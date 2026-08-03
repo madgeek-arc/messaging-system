@@ -13,6 +13,14 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
+/**
+ * Calls the messaging service over HTTP.
+ * <p>
+ * Uses {@code retrieve()} so a 4xx/5xx response raises
+ * {@link org.springframework.web.reactive.function.client.WebClientResponseException} rather than
+ * being decoded into the success type — see {@link gr.athenarc.messaging.service.MessagingService},
+ * which carries the same operations without the inherited request mappings.
+ */
 public class MessagingController implements TopicThreadsController {
 
     private final WebClient webClient;
@@ -29,7 +37,8 @@ public class MessagingController implements TopicThreadsController {
                         .queryParam("email", email)
                         .queryParam("groupId", groupId)
                         .build(threadId))
-                .exchangeToMono(body -> body.bodyToMono(ThreadDTO.class));
+                .retrieve()
+                .bodyToMono(ThreadDTO.class);
     }
 
     @Override
@@ -37,7 +46,8 @@ public class MessagingController implements TopicThreadsController {
         return this.webClient.post()
                 .uri(RestApiPaths.THREADS)
                 .body(BodyInserters.fromValue(thread))
-                .exchangeToMono(body -> body.bodyToMono(ThreadDTO.class));
+                .retrieve()
+                .bodyToMono(ThreadDTO.class);
     }
 
     @Override
@@ -45,14 +55,16 @@ public class MessagingController implements TopicThreadsController {
         return this.webClient.put()
                 .uri(RestApiPaths.THREADS_id, threadId)
                 .body(BodyInserters.fromValue(topicThread))
-                .exchangeToMono(body -> body.bodyToMono(ThreadDTO.class));
+                .retrieve()
+                .bodyToMono(ThreadDTO.class);
     }
 
     @Override
     public Mono<Void> delete(String threadId) {
         return this.webClient.delete()
                 .uri(RestApiPaths.THREADS_id, threadId)
-                .exchangeToMono(body -> body.bodyToMono(Void.class));
+                .retrieve()
+                .bodyToMono(Void.class);
     }
 
     @Override
@@ -70,7 +82,8 @@ public class MessagingController implements TopicThreadsController {
                                 .queryParam("regex", regex)
                                 .queryParam("email", email)
                                 .build())
-                .exchangeToMono(body -> body.bodyToMono(Integer.class));
+                .retrieve()
+                .bodyToMono(Integer.class);
     }
 
     @Override
@@ -87,7 +100,8 @@ public class MessagingController implements TopicThreadsController {
                                 .queryParam("page", page)
                                 .queryParam("size", size)
                                 .build())
-                .exchangeToFlux(body -> body.bodyToFlux(ThreadDTO.class));
+                .retrieve()
+                .bodyToFlux(ThreadDTO.class);
     }
 
     @Override
@@ -104,7 +118,8 @@ public class MessagingController implements TopicThreadsController {
                                 .queryParam("size", size)
 //                                .queryParam("authentication", authentication)
                                 .build())
-                .exchangeToFlux(body -> body.bodyToFlux(ThreadDTO.class));
+                .retrieve()
+                .bodyToFlux(ThreadDTO.class);
     }
 
     @Override
@@ -117,7 +132,8 @@ public class MessagingController implements TopicThreadsController {
                                 .queryParam("regex", regex)
                                 .queryParam("email", email)
                                 .build())
-                .exchangeToMono(body -> body.bodyToMono(Integer.class));
+                .retrieve()
+                .bodyToMono(Integer.class);
     }
 
     @Override
@@ -135,7 +151,8 @@ public class MessagingController implements TopicThreadsController {
                                 .queryParam("size", size)
 //                                .queryParam("authentication", authentication)
                                 .build())
-                .exchangeToFlux(body -> body.bodyToFlux(ThreadDTO.class));
+                .retrieve()
+                .bodyToFlux(ThreadDTO.class);
     }
 
     @Override
@@ -146,7 +163,8 @@ public class MessagingController implements TopicThreadsController {
                         .queryParam("anonymous", anonymous)
                         .build(threadId))
                 .body(BodyInserters.fromValue(message))
-                .exchangeToMono(body -> body.bodyToMono(ThreadDTO.class));
+                .retrieve()
+                .bodyToMono(ThreadDTO.class);
     }
 
     @Override
@@ -159,7 +177,8 @@ public class MessagingController implements TopicThreadsController {
                                 .queryParam("userId", userId)
                                 .build(threadId, messageId)
                 )
-                .exchangeToMono(body -> body.bodyToMono(ThreadDTO.class));
+                .retrieve()
+                .bodyToMono(ThreadDTO.class);
     }
 
     private Mono<UnreadThreads> getUnreadThreads(List<String> groups, String email) {
@@ -168,7 +187,8 @@ public class MessagingController implements TopicThreadsController {
                         .queryParam("groups", groups)
                         .queryParam("email", email)
                         .build())
-                .exchangeToMono(body -> body.bodyToMono(UnreadThreads.class));
+                .retrieve()
+                .bodyToMono(UnreadThreads.class);
     }
 
 }
