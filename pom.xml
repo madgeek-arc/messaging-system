@@ -88,10 +88,12 @@
                         <version>5.0.0</version>
                     </dependency>
                 </dependencies>
+                <inherited>false</inherited>
                 <configuration>
+                    <aggregate>true</aggregate>
                     <licenseSets>
                         <licenseSet>
-                            <header>${maven.multiModuleProjectDirectory}/license-header.txt</header>
+                            <header>${project.basedir}/license-header.txt</header>
                             <includes>
                                 <include>**/*.java</include>
                             </includes>
