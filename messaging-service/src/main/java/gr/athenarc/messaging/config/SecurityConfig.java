@@ -16,6 +16,9 @@
 
 package gr.athenarc.messaging.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -23,43 +26,45 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
-import org.springframework.session.data.redis.config.annotation.web.server.EnableRedisWebSession;
-import org.springframework.web.server.session.CookieWebSessionIdResolver;
-import org.springframework.web.server.session.WebSessionIdResolver;
+import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
+import org.springframework.util.StringUtils;
 
+/**
+ * Requires a valid bearer JWT on every request when a JWT issuer is configured; otherwise all
+ * endpoints are public.
+ */
 @Configuration
 @EnableWebFluxSecurity
 @EnableReactiveMethodSecurity
-@EnableRedisWebSession
 public class SecurityConfig {
 
+    private static final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
+
     @Bean
-    public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+    public SecurityWebFilterChain springSecurityFilterChain(
+            ServerHttpSecurity http,
+            @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri:}") String issuerUri) {
+
         http
                 .headers(headers -> headers
-                        .xssProtection(ServerHttpSecurity.HeaderSpec.XssProtectionSpec::disable));
-
-        http
+                        .xssProtection(ServerHttpSecurity.HeaderSpec.XssProtectionSpec::disable))
                 .cors(ServerHttpSecurity.CorsSpec::disable)
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                .securityContextRepository(NoOpServerSecurityContextRepository.getInstance());
 
-                .authorizeExchange(authorize -> authorize
-                        .anyExchange().permitAll()
-                )
-                .securityContextRepository(new WebSessionServerSecurityContextRepository())
-                .oauth2Client(Customizer.withDefaults());
+        if (StringUtils.hasText(issuerUri)) {
+            http
+                    .authorizeExchange(authorize -> authorize
+                            .pathMatchers("/actuator/health/**",
+                                    "/v3/api-docs/**", "/swagger-ui/**", "/webjars/**").permitAll()
+                            .anyExchange().authenticated())
+                    .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
+        } else {
+            logger.warn("No JWT issuer configured: all endpoints are public");
+            http.authorizeExchange(authorize -> authorize.anyExchange().permitAll());
+        }
 
         return http.build();
-    }
-
-    @Bean
-    public WebSessionIdResolver webSessionIdResolver() {
-        CookieWebSessionIdResolver resolver = new CookieWebSessionIdResolver();
-        resolver.setCookieName("SESSION");
-        resolver.addCookieInitializer((builder) -> builder.path("/"));
-        resolver.addCookieInitializer((builder) -> builder.sameSite("Strict"));
-        return resolver;
     }
 
 }
