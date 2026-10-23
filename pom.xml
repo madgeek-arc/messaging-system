@@ -26,6 +26,8 @@
 
     <properties>
         <java.version>21</java.version>
+        <!-- JDK 23+ no longer runs annotation processors unless asked to -->
+        <maven.compiler.proc>full</maven.compiler.proc>
     </properties>
 
     <modules>
