@@ -23,6 +23,8 @@ import org.springframework.util.StringUtils;
 
 import jakarta.annotation.PostConstruct;
 
+import java.time.Duration;
+
 @ConfigurationProperties(prefix = "messaging-system")
 public class MessagingClientProperties {
 
@@ -50,6 +52,16 @@ public class MessagingClientProperties {
          */
         private String apiKey;
 
+        /**
+         * Time allowed to establish the connection to the messaging service.
+         */
+        private Duration connectTimeout = Duration.ofSeconds(10);
+
+        /**
+         * Time allowed for the messaging service to respond.
+         */
+        private Duration responseTimeout = Duration.ofSeconds(30);
+
         public String getEndpoint() {
             return endpoint;
         }
@@ -64,6 +76,22 @@ public class MessagingClientProperties {
 
         public void setApiKey(String apiKey) {
             this.apiKey = apiKey;
+        }
+
+        public Duration getConnectTimeout() {
+            return connectTimeout;
+        }
+
+        public void setConnectTimeout(Duration connectTimeout) {
+            this.connectTimeout = connectTimeout;
+        }
+
+        public Duration getResponseTimeout() {
+            return responseTimeout;
+        }
+
+        public void setResponseTimeout(Duration responseTimeout) {
+            this.responseTimeout = responseTimeout;
         }
     }
 

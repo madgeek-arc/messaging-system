@@ -16,8 +16,11 @@
 package gr.athenarc.messaging.config;
 
 import gr.athenarc.messaging.controller.MessagingHeaders;
+import io.netty.channel.ChannelOption;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.netty.http.client.HttpClient;
 
 /**
  * Builds the {@link WebClient} that calls the messaging service.
@@ -28,12 +31,20 @@ public final class MessagingWebClients {
     }
 
     /**
+     * Keeps the filters and default headers of {@code builder} and replaces its connector with one
+     * applying the configured connect and response timeouts.
+     *
      * @return a client for {@code messaging-system.client.endpoint} that sends
      * {@code messaging-system.client.api-key} in the {@value MessagingHeaders#API_KEY} header when set
      */
     public static WebClient create(MessagingClientProperties properties, WebClient.Builder builder) {
         MessagingClientProperties.Client client = properties.getClient();
-        WebClient.Builder configured = builder.baseUrl(client.getEndpoint());
+        HttpClient httpClient = HttpClient.create()
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, Math.toIntExact(client.getConnectTimeout().toMillis()))
+                .responseTimeout(client.getResponseTimeout());
+        WebClient.Builder configured = builder
+                .baseUrl(client.getEndpoint())
+                .clientConnector(new ReactorClientHttpConnector(httpClient));
         if (StringUtils.hasText(client.getApiKey())) {
             configured.defaultHeader(MessagingHeaders.API_KEY, client.getApiKey());
         }

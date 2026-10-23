@@ -46,7 +46,15 @@ public class MessagingService implements ThreadOperations {
     private final WebClient webClient;
 
     public MessagingService(MessagingClientProperties messagingClientProperties) {
-        this.webClient = MessagingWebClients.create(messagingClientProperties, WebClient.builder());
+        this(messagingClientProperties, WebClient.builder());
+    }
+
+    /**
+     * @param webClientBuilder builder whose filters and default headers (for example an OAuth2
+     *                         filter adding a bearer token) apply to every call
+     */
+    public MessagingService(MessagingClientProperties messagingClientProperties, WebClient.Builder webClientBuilder) {
+        this.webClient = MessagingWebClients.create(messagingClientProperties, webClientBuilder);
     }
 
     @Override

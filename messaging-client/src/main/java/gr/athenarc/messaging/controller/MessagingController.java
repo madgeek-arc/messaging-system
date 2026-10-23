@@ -43,7 +43,15 @@ public class MessagingController implements TopicThreadsController {
     private final WebClient webClient;
 
     public MessagingController(MessagingClientProperties messagingClientProperties) {
-        this.webClient = MessagingWebClients.create(messagingClientProperties, WebClient.builder());
+        this(messagingClientProperties, WebClient.builder());
+    }
+
+    /**
+     * @param webClientBuilder builder whose filters and default headers (for example an OAuth2
+     *                         filter adding a bearer token) apply to every call
+     */
+    public MessagingController(MessagingClientProperties messagingClientProperties, WebClient.Builder webClientBuilder) {
+        this.webClient = MessagingWebClients.create(messagingClientProperties, webClientBuilder);
     }
 
     @Override
