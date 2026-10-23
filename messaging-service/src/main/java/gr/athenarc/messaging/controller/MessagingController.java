@@ -106,7 +106,7 @@ public class MessagingController implements TopicThreadsController {
             @RequestParam String groupId,
             @RequestParam(defaultValue = "") String regex,
             @RequestParam String email) {
-        return topicThreadRepository.countInbox(groupId, SearchTerms.literal(regex), email);
+        return topicThreadRepository.countInbox(groupId, SearchTerms.literal(regex), email).map(Long::intValue);
 //        return topicThreadService.get(threadId).map(thread -> new ThreadDTO(thread, email));
     }
 
@@ -146,7 +146,7 @@ public class MessagingController implements TopicThreadsController {
             @RequestParam String groupId,
             @RequestParam(defaultValue = "") String regex,
             @RequestParam String email) {
-        return topicThreadRepository.countOutbox(groupId, SearchTerms.literal(regex), email);
+        return topicThreadRepository.countOutbox(groupId, SearchTerms.literal(regex), email).map(Long::intValue);
 //        return topicThreadService.get(threadId).map(thread -> new ThreadDTO(thread, email));
     }
 
