@@ -24,14 +24,19 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.util.StringUtils;
 
 /**
- * Requires a valid bearer JWT on every request when a JWT issuer is configured; otherwise all
- * endpoints are public.
+ * Requires a valid bearer JWT when a JWT issuer is configured, and the
+ * {@code messaging-system.api-key} in the {@code X-API-Key} header when that key is set. Health,
+ * OpenAPI and Swagger UI paths are exempt from both. With neither configured, all endpoints are
+ * public.
  */
 @Configuration
 @EnableWebFluxSecurity
@@ -40,10 +45,14 @@ public class SecurityConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
 
+    private static final String[] PUBLIC_PATHS = {
+            "/actuator/health/**", "/v3/api-docs/**", "/swagger-ui/**", "/webjars/**"};
+
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(
             ServerHttpSecurity http,
-            @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri:}") String issuerUri) {
+            @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri:}") String issuerUri,
+            @Value("${messaging-system.api-key:}") String apiKey) {
 
         http
                 .headers(headers -> headers
@@ -55,13 +64,18 @@ public class SecurityConfig {
         if (StringUtils.hasText(issuerUri)) {
             http
                     .authorizeExchange(authorize -> authorize
-                            .pathMatchers("/actuator/health/**",
-                                    "/v3/api-docs/**", "/swagger-ui/**", "/webjars/**").permitAll()
+                            .pathMatchers(PUBLIC_PATHS).permitAll()
                             .anyExchange().authenticated())
                     .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
         } else {
-            logger.warn("No JWT issuer configured: all endpoints are public");
             http.authorizeExchange(authorize -> authorize.anyExchange().permitAll());
+        }
+
+        if (StringUtils.hasText(apiKey)) {
+            ServerWebExchangeMatcher exempt = ServerWebExchangeMatchers.pathMatchers(PUBLIC_PATHS);
+            http.addFilterBefore(new ApiKeyWebFilter(apiKey, exempt), SecurityWebFiltersOrder.AUTHENTICATION);
+        } else if (!StringUtils.hasText(issuerUri)) {
+            logger.warn("Neither messaging-system.api-key nor a JWT issuer is configured: all endpoints are public");
         }
 
         return http.build();

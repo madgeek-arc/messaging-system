@@ -17,6 +17,7 @@
 package gr.athenarc.messaging.service;
 
 import gr.athenarc.messaging.config.MessagingClientProperties;
+import gr.athenarc.messaging.config.MessagingWebClients;
 import gr.athenarc.messaging.controller.RestApiPaths;
 import gr.athenarc.messaging.domain.Message;
 import gr.athenarc.messaging.domain.TopicThread;
@@ -45,7 +46,7 @@ public class MessagingService implements ThreadOperations {
     private final WebClient webClient;
 
     public MessagingService(MessagingClientProperties messagingClientProperties) {
-        this.webClient = WebClient.builder().baseUrl(messagingClientProperties.getClient().getEndpoint()).build();
+        this.webClient = MessagingWebClients.create(messagingClientProperties, WebClient.builder());
     }
 
     @Override

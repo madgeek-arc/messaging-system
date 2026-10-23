@@ -17,6 +17,7 @@
 package gr.athenarc.messaging.controller;
 
 import gr.athenarc.messaging.config.MessagingClientProperties;
+import gr.athenarc.messaging.config.MessagingWebClients;
 import gr.athenarc.messaging.domain.Message;
 import gr.athenarc.messaging.domain.TopicThread;
 import gr.athenarc.messaging.dto.ThreadDTO;
@@ -42,7 +43,7 @@ public class MessagingController implements TopicThreadsController {
     private final WebClient webClient;
 
     public MessagingController(MessagingClientProperties messagingClientProperties) {
-        this.webClient = WebClient.builder().baseUrl(messagingClientProperties.getClient().getEndpoint()).build();
+        this.webClient = MessagingWebClients.create(messagingClientProperties, WebClient.builder());
     }
 
     @Override

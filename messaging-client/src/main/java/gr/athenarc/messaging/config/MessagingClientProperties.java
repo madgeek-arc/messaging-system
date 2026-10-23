@@ -45,12 +45,25 @@ public class MessagingClientProperties {
          */
         private String endpoint;
 
+        /**
+         * Key sent in the X-API-Key header, required when the service sets messaging-system.api-key.
+         */
+        private String apiKey;
+
         public String getEndpoint() {
             return endpoint;
         }
 
         public void setEndpoint(String endpoint) {
             this.endpoint = endpoint;
+        }
+
+        public String getApiKey() {
+            return apiKey;
+        }
+
+        public void setApiKey(String apiKey) {
+            this.apiKey = apiKey;
         }
     }
 
