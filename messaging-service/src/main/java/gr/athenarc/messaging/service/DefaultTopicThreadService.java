@@ -120,11 +120,12 @@ public class DefaultTopicThreadService implements TopicThreadService {
 
     @Override
     public Mono<Page<ThreadDTO>> getInbox(String groupId, String regex, String email, Pageable pageable) {
-        return topicThreadRepository.searchInbox(groupId, regex, email, pageable)
+        String pattern = SearchTerms.literal(regex);
+        return topicThreadRepository.searchInbox(groupId, pattern, email, pageable)
                 .filter(Objects::nonNull)
                 .map(topic -> new ThreadDTO(topic, email))
                 .collectList()
-                .zipWith(topicThreadRepository.countInbox(groupId, regex, email))
+                .zipWith(topicThreadRepository.countInbox(groupId, pattern, email))
                 .map(p -> new PageImpl<>(p.getT1(), pageable, p.getT2()));
     }
 

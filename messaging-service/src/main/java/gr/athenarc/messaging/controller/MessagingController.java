@@ -23,6 +23,7 @@ import gr.athenarc.messaging.dto.AnonymizeUserRequest;
 import gr.athenarc.messaging.dto.ThreadDTO;
 import gr.athenarc.messaging.dto.UnreadThreads;
 import gr.athenarc.messaging.repository.ReactiveMongoTopicThreadRepository;
+import gr.athenarc.messaging.service.SearchTerms;
 import gr.athenarc.messaging.service.TopicThreadService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,7 +106,7 @@ public class MessagingController implements TopicThreadsController {
             @RequestParam String groupId,
             @RequestParam(defaultValue = "") String regex,
             @RequestParam String email) {
-        return topicThreadRepository.countInbox(groupId, regex, email);
+        return topicThreadRepository.countInbox(groupId, SearchTerms.literal(regex), email);
 //        return topicThreadService.get(threadId).map(thread -> new ThreadDTO(thread, email));
     }
 
@@ -119,7 +120,7 @@ public class MessagingController implements TopicThreadsController {
             @RequestParam(defaultValue = "DESC") Sort.Direction direction,
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
-        return topicThreadRepository.searchInbox(groupId, regex, email, PageRequest.of(page, size, Sort.by(direction, sortBy)))
+        return topicThreadRepository.searchInbox(groupId, SearchTerms.literal(regex), email, PageRequest.of(page, size, Sort.by(direction, sortBy)))
                 .filter(Objects::nonNull)
                 .map(topic -> new ThreadDTO(topic, email));
     }
@@ -145,7 +146,7 @@ public class MessagingController implements TopicThreadsController {
             @RequestParam String groupId,
             @RequestParam(defaultValue = "") String regex,
             @RequestParam String email) {
-        return topicThreadRepository.countOutbox(groupId, regex, email);
+        return topicThreadRepository.countOutbox(groupId, SearchTerms.literal(regex), email);
 //        return topicThreadService.get(threadId).map(thread -> new ThreadDTO(thread, email));
     }
 
@@ -161,7 +162,7 @@ public class MessagingController implements TopicThreadsController {
             @RequestParam(defaultValue = "10") Integer size/*,
      *//*@Parameter(hidden = true)*//* @AuthenticationPrincipal Authentication authentication*/) {
 //        logger.info(authentication.toString());
-        return topicThreadRepository.searchOutbox(groupId, regex, email, PageRequest.of(page, size, Sort.by(direction, sortBy)))
+        return topicThreadRepository.searchOutbox(groupId, SearchTerms.literal(regex), email, PageRequest.of(page, size, Sort.by(direction, sortBy)))
                 .filter(Objects::nonNull)
                 .map(topic -> new ThreadDTO(topic, email));
     }
@@ -235,7 +236,7 @@ public class MessagingController implements TopicThreadsController {
             @RequestParam(defaultValue = "DESC") Sort.Direction direction,
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
-        return topicThreadRepository.findAllUsingQuery(regex, PageRequest.of(page, size, Sort.by(direction, sortBy)));
+        return topicThreadRepository.findAllUsingQuery(SearchTerms.literal(regex), PageRequest.of(page, size, Sort.by(direction, sortBy)));
     }
 
 
