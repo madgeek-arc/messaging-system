@@ -86,8 +86,11 @@ public class DefaultTopicThreadService implements TopicThreadService {
     @Override
     public Mono<TopicThread> update(String id, TopicThread topicThread) {
         return topicThreadRepository.findById(id)
-                .switchIfEmpty(Mono.error(new RuntimeException("Not Found")))
-                .flatMap(s -> topicThreadRepository.save(topicThread));
+                .switchIfEmpty(Mono.error(() -> threadNotFound(id)))
+                .flatMap(existing -> {
+                    topicThread.setId(id);
+                    return topicThreadRepository.save(topicThread);
+                });
     }
 
     @Override
