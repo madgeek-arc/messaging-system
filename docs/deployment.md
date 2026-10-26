@@ -19,15 +19,20 @@ deployment isn't defined in this repository. The service can run as:
 | Command | Artefact |
 |---|---|
 | `./mvnw clean package` | `messaging-service/target/messaging-service-<version>.jar` (Spring Boot executable), plus `messaging-core` and `messaging-client` jars |
-| `./mvnw -pl messaging-service spring-boot:build-image` | OCI image `messaging-service:<version>` (Cloud Native Buildpacks; the POM also declares `native-maven-plugin` for the image build) |
+| `./mvnw install -DskipTests && ./mvnw -pl messaging-service spring-boot:build-image` | OCI image `messaging-service:<version>` (Cloud Native Buildpacks; the POM also declares `native-maven-plugin` for the image build) |
 | `./mvnw release:prepare release:perform` | Tag and deploy (`maven-release-plugin`) |
 
 A CI job outside the repository builds and tags the image like this:
 
 ```bash
+mvn -U clean install
 image="docker.madgik.di.uoa.gr/messaging-service:$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout | tail -1 | sed s/-SNAPSHOT//g)"
 mvn -f messaging-service/pom.xml spring-boot:build-image -Dspring-boot.build-image.imageName=${image}
 ```
+
+The image build uses only `messaging-service/pom.xml`, so it takes `messaging-core` from the local Maven
+repository. `install` puts the freshly built modules there; with `package` alone, the build compiles
+against whichever `messaging-core` snapshot was previously installed or downloaded.
 
 ## Runtime
 

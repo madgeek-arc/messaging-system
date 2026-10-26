@@ -102,7 +102,8 @@ The `regex` search parameters are matched as literal text, case-insensitively. U
 ```
 
 This runs the tests and the license header check, and produces an executable jar at `messaging-service/target/messaging-service-<version>.jar`. To build an OCI
-image instead, run `./mvnw -pl messaging-service spring-boot:build-image`.
+image instead, run `./mvnw install -DskipTests && ./mvnw -pl messaging-service spring-boot:build-image`;
+the image build takes `messaging-core` from the local repository, so it must be installed first.
 
 ### Configure
 
