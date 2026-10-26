@@ -4,7 +4,7 @@
 |---|---|
 | Base URL | `http://<host>:8383/api` (`server.port`, `spring.webflux.base-path`) |
 | Versioning | None in the path |
-| Authentication | None by default. `X-API-Key` header when `messaging-system.api-key` is set. Bearer JWT when `spring.security.oauth2.resourceserver.jwt.issuer-uri` is set. Health and docs stay open (see [security.md](security.md)) |
+| Authentication | None by default. `X-API-Key` header when `messaging-system.api-key` is set. Bearer JWT when `spring.security.oauth2.resourceserver.jwt.issuer-uri` is set. Health and docs stay open (see [security-model.md](security-model.md)) |
 | OpenAPI | `/api/v3/api-docs`. Swagger UI `/api/swagger-ui.html`. Both **disabled by default** (`springdoc.api-docs.enabled`, `springdoc.swagger-ui.enabled`). The bearer scheme is added to the document when an issuer is configured (`OpenApiConfig`) |
 | Health | `/api/actuator/health`, with `/liveness` and `/readiness` probes |
 

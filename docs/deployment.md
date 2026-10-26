@@ -49,7 +49,7 @@ java -jar messaging-service/target/messaging-service-<version>.jar \
 
 - Set `messaging-system.api-key` (and the same `messaging-system.client.api-key` in calling
   applications), or a JWT issuer with `jwt.audiences`. Either way, make the API reachable only by
-  backends that authorise their users (see [security.md](security.md)).
+  backends that authorise their users (see [security-model.md](security-model.md)).
 - Keep Swagger disabled unless the docs endpoints are access-controlled.
 - Use MongoDB authentication and TLS (`spring.data.mongodb.uri` with `tls=true`).
 

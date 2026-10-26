@@ -1,4 +1,4 @@
-# Messaging System — Security
+# Messaging System — Security model
 
 ## Authentication
 

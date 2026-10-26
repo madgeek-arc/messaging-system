@@ -28,7 +28,7 @@ See [api.md](api.md). The OpenAPI document is generated at runtime when
   (`MessagingClientConfig`, `MessagingClientConfigTest`)
 
 Either way the service trusts the `email`/`groupId` values the application sends, so the
-application must authorise its users before calling it (see [security.md](security.md)).
+application must authorise its users before calling it (see [security-model.md](security-model.md)).
 
 ## Failure behaviour
 

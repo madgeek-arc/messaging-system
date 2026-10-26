@@ -19,7 +19,7 @@
 
 - Send emails or notifications. (no mail or JMS dependency)
 - Authorise access per user or group. It trusts the `email`/`groupId` parameters supplied by the
-  caller. (see [security.md](security.md)). End-user authorisation is planned for a
+  caller. (see [security-model.md](security-model.md)). End-user authorisation is planned for a
   later version.
 - Manage users or groups. `groupId` values are opaque strings.
 
@@ -80,7 +80,7 @@ flowchart LR
 ## Security
 
 Optional API key and JWT authentication of the calling application, no per-user authorisation,
-search terms matched literally, and CORS and CSRF disabled. See [security.md](security.md).
+search terms matched literally, and CORS and CSRF disabled. See [security-model.md](security-model.md).
 
 ## Significant design decisions
 
