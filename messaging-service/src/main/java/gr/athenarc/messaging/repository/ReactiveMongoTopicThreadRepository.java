@@ -47,14 +47,14 @@ public interface ReactiveMongoTopicThreadRepository extends ReactiveMongoReposit
     Flux<TopicThread> findAllUsingQuery(String regex, Pageable pageable);
 
     @Query(count = true, value = "{'$and': [ {'messages.message.to.groupId': ?0}, {'$or':[ {'subject': { '$regex': ?1, $options: 'i'}}, {'tags': { '$regex': ?1, $options: 'i'}}, {'messages.message.from.email': { '$regex': ?1, $options: 'i'}}, {'messages.message.to.email': { '$regex': ?1, $options: 'i'}} ]} ]}")
-    Mono<Integer> countInbox(String groupId, String regex, String email);
+    Mono<Long> countInbox(String groupId, String regex, String email);
 
     @Override
     @Query(value = "{'$and': [ {'messages.message.to.groupId': ?0}, {'$or':[ {'subject': { '$regex': ?1, $options: 'i'}}, {'tags': { '$regex': ?1, $options: 'i'}}, {'messages.message.from.email': { '$regex': ?1, $options: 'i'}}, {'messages.message.to.email': { '$regex': ?1, $options: 'i'}} ]} ]}")
     Flux<TopicThread> searchInbox(String groupId, String regex, String email, Pageable pageable);
 
     @Query(count = true, value = "{'$and': [ {'messages.message.from.groupId': ?0}, {'messages.message.from.email': ?2}, {'$or':[ {'subject': { '$regex': ?1, $options: 'i'}}, {'tags': { '$regex': ?1, $options: 'i'}} ]} ]}")
-    Mono<Integer> countOutbox(String groupId, String regex, String email);
+    Mono<Long> countOutbox(String groupId, String regex, String email);
 
     @Override
     @Query(value = "{'$and': [ {'messages.message.from.groupId': ?0}, {'messages.message.from.email': ?2}, {'$or':[ {'subject': { '$regex': ?1, $options: 'i'}}, {'tags': { '$regex': ?1, $options: 'i'}} ]} ]}")

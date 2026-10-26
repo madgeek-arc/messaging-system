@@ -2,6 +2,25 @@
 
 A reactive messaging service with a Spring Boot client. Applications create topic threads and post messages through a REST API; the service stores them in MongoDB and supports inbox and outbox searches, unread tracking, replies and user anonymization.
 
+## Component metadata
+
+| Field | Value |
+|---|---|
+| Component | Messaging System (`gr.athenarc:messaging`) |
+| Type | Supporting service (`messaging-service`), plus a client library (`messaging-client`) |
+| Status | Released (`0.1.0`); `main` is `0.1.1-SNAPSHOT` |
+| Technology | Java 21, Spring Boot 3.5 WebFlux (reactive), Spring Data MongoDB Reactive, Spring Security (optional API key, optional JWT), springdoc-openapi, Sentry, Log4j2, Maven |
+| API | Yes: REST under `/api` (open unless an API key or a JWT issuer is configured) |
+| Swagger | Disabled by default; when enabled `/api/swagger-ui.html` and `/api/v3/api-docs` |
+| Deployment | Executable jar (`messaging-service/target/messaging-service-<version>.jar`) or OCI image (`spring-boot:build-image`) |
+| Documentation | [docs/](docs/) |
+
+## Role
+
+Stores and serves message threads between users and user groups (inbox/outbox, unread tracking,
+replies, GDPR erasure). Backend components embed `messaging-client` to call it. The service itself
+depends only on MongoDB and, optionally, an OIDC/JWT issuer and Sentry.
+
 ## Modules
 
 | Module | Description |
@@ -18,7 +37,7 @@ Add the dependency (Java 21, Spring Boot 3):
 <dependency>
     <groupId>gr.athenarc</groupId>
     <artifactId>messaging-client</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.0</version>
 </dependency>
 ```
 
@@ -26,6 +45,11 @@ Configure the service location:
 
 ```properties
 messaging-system.client.endpoint=http://localhost:8383/api/
+# when the service requires an API key
+#messaging-system.client.api-key=<key>
+# defaults shown
+#messaging-system.client.connect-timeout=10s
+#messaging-system.client.response-timeout=30s
 ```
 
 The client auto-configures a `MessagingService` bean; inject it and send:
@@ -52,7 +76,9 @@ public class Notifications {
 
 A thread has a `subject`, `tags`, a sender (`from`), recipients (`to`) and a list of messages. Each message has a `body`, `from`, `to`, `anonymousSender`, `replyToMessageId` and a per-user `read` flag. A correspondent is identified by `name`, `email` and `groupId`.
 
-Methods return `Mono`/`Flux`. A failed request (connection error, non-2xx response) surfaces as a `WebClientResponseException` carrying the status and body. A missing `messaging-system.client.endpoint` is logged as a warning at startup.
+Methods return `Mono`/`Flux`. A non-2xx response surfaces as a `WebClientResponseException` carrying the status and body; connection errors and timeouts surface as `WebClientRequestException`. A missing `messaging-system.client.endpoint` is logged as a warning at startup.
+
+The client is built from the application's `WebClient.Builder`, so filters registered through a `WebClientCustomizer` bean (for example one adding a bearer token) apply to its calls.
 
 ### Calling the API directly
 
@@ -73,12 +99,12 @@ Main endpoints, relative to the service base path:
 | `POST` | `threads` | Create a thread |
 | `GET` / `PUT` / `DELETE` | `threads/{threadId}` | Read, update or delete a thread |
 | `POST` | `threads/{threadId}/messages` | Add a message to a thread |
-| `PATCH` | `threads/{threadId}/messages/{messageId}` | Mark a message as read |
+| `PATCH` | `threads/{threadId}/messages/{messageId}` | Mark a message as read or unread |
 | `GET` | `inbox/threads/search`, `inbox/threads/count`, `inbox/threads/unread` | Inbox queries |
 | `GET` | `outbox/threads/search`, `outbox/threads/count` | Outbox queries |
 | `POST` | `user/anonymize` | Anonymize a user's personal data |
 
-The full API is documented by the service's OpenAPI endpoints (see below).
+The `regex` search parameters are matched as literal text, case-insensitively. Unknown threads or messages return `404`, and invalid message or read requests return `400`. The full API is documented by the service's OpenAPI endpoints (see below).
 
 ## Running the service
 
@@ -108,13 +134,24 @@ spring.data.mongodb.database=messaging
 
 #### Authentication
 
-The API is public by default. To require a valid JWT on every request, set the issuer of your identity provider:
+The API is open by default and logs a warning at startup. Two optional mechanisms authenticate the calling application; they can be combined.
+
+An API key, sent by callers in the `X-API-Key` header (the client sends `messaging-system.client.api-key`):
+
+```properties
+messaging-system.api-key=<key>
+```
+
+A JWT from your identity provider, sent as `Authorization: Bearer <jwt>`:
 
 ```properties
 spring.security.oauth2.resourceserver.jwt.issuer-uri=https://idp.example.org/realms/example
+spring.security.oauth2.resourceserver.jwt.audiences=messaging-system
 ```
 
-Callers then send `Authorization: Bearer <jwt>`. The health endpoint (and the API documentation, when enabled) stays open. Leave the property unset, not empty, to run without authentication.
+Leave `issuer-uri` unset, not empty, to run without JWT. The health endpoint (and the API documentation, when enabled) stays open in both cases.
+
+The service doesn't authorise individual users: it trusts the `email` and `groupId` values the caller sends, so the calling application must check them. End-user authorisation is planned for a later version.
 
 ### Run
 
@@ -150,6 +187,15 @@ Every Java file carries an Apache 2.0 header, checked during `validate` when the
 
 Copyright years are derived from each file's git history, so builds need a full (non-shallow) clone.
 
+## Documentation
+
+- [Architecture](docs/architecture.md) · [Integration](docs/integration.md) · [API](docs/api.md)
+- [Configuration](docs/configuration.md) · [Example configuration](application-example.properties)
+- [Deployment](docs/deployment.md) · [Operations](docs/operations.md) · [Troubleshooting](docs/troubleshooting.md)
+- [Security](docs/security.md) · [Development](docs/development.md) · [Testing](docs/testing.md)
+- [Contributing](CONTRIBUTING.md) · [Changelog](CHANGELOG.md)
+
 ## License
 
-Apache License 2.0. See [LICENSE](LICENSE).
+Apache License 2.0. See [LICENSE](LICENSE). Maintained by the madgeek-arc team
+(<https://github.com/madgeek-arc/messaging-system>).

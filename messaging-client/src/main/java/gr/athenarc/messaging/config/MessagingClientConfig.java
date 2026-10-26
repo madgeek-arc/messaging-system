@@ -18,12 +18,15 @@ package gr.athenarc.messaging.config;
 
 
 import gr.athenarc.messaging.service.MessagingService;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientAutoConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.web.reactive.function.client.WebClient;
 
-@AutoConfiguration
+@AutoConfiguration(after = WebClientAutoConfiguration.class)
 @EnableConfigurationProperties(MessagingClientProperties.class)
 public class MessagingClientConfig {
 
@@ -34,10 +37,14 @@ public class MessagingClientConfig {
      * Named {@code messagingClient} rather than {@code messagingService}: the latter is a
      * generic enough name that consumers plausibly have their own bean under it, and a clash
      * would fail their context at startup with a bean definition override error.
+     * <p>
+     * Built from the application's {@link WebClient.Builder} when one exists, so its customizers
+     * (filters, default headers) apply.
      */
     @Bean
     @ConditionalOnMissingBean
-    public MessagingService messagingClient(MessagingClientProperties messagingClientProperties) {
-        return new MessagingService(messagingClientProperties);
+    public MessagingService messagingClient(MessagingClientProperties messagingClientProperties,
+                                            ObjectProvider<WebClient.Builder> webClientBuilder) {
+        return new MessagingService(messagingClientProperties, webClientBuilder.getIfAvailable(WebClient::builder));
     }
 }
