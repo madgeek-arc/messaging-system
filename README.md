@@ -8,7 +8,6 @@ A reactive messaging service with a Spring Boot client. Applications create topi
 |---|---|
 | Component | Messaging System (`gr.athenarc:messaging`) |
 | Type | Supporting service (`messaging-service`), plus a client library (`messaging-client`) |
-| Status | Released (`0.1.0`); `main` is `0.1.1-SNAPSHOT` |
 | Technology | Java 21, Spring Boot 3.5 WebFlux (reactive), Spring Data MongoDB Reactive, Spring Security (optional API key, optional JWT), springdoc-openapi, Sentry, Log4j2, Maven |
 | API | Yes: REST under `/api` (open unless an API key or a JWT issuer is configured) |
 | Swagger | Disabled by default; when enabled `/api/swagger-ui.html` and `/api/v3/api-docs` |
