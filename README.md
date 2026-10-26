@@ -2,18 +2,6 @@
 
 A reactive messaging service with a Spring Boot client. Applications create topic threads and post messages through a REST API; the service stores them in MongoDB and supports inbox and outbox searches, unread tracking, replies and user anonymization.
 
-## Component metadata
-
-| Field | Value |
-|---|---|
-| Component | Messaging System (`gr.athenarc:messaging`) |
-| Type | Supporting service (`messaging-service`), plus a client library (`messaging-client`) |
-| Technology | Java 21, Spring Boot 3.5 WebFlux (reactive), Spring Data MongoDB Reactive, Spring Security (optional API key, optional JWT), springdoc-openapi, Sentry, Log4j2, Maven |
-| API | Yes: REST under `/api` (open unless an API key or a JWT issuer is configured) |
-| Swagger | Disabled by default; when enabled `/api/swagger-ui.html` and `/api/v3/api-docs` |
-| Deployment | Executable jar (`messaging-service/target/messaging-service-<version>.jar`) or OCI image (`spring-boot:build-image`) |
-| Documentation | [docs/](docs/) |
-
 ## Role
 
 Stores and serves message threads between users and user groups (inbox/outbox, unread tracking,
@@ -113,7 +101,8 @@ The `regex` search parameters are matched as literal text, case-insensitively. U
 ./mvnw clean package
 ```
 
-This runs the tests and the license header check, and produces an executable jar at `messaging-service/target/messaging-service-<version>.jar`.
+This runs the tests and the license header check, and produces an executable jar at `messaging-service/target/messaging-service-<version>.jar`. To build an OCI
+image instead, run `./mvnw -pl messaging-service spring-boot:build-image`.
 
 ### Configure
 
